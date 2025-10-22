@@ -486,9 +486,20 @@ export default function Dashboard({ user, setUser }) {
         {/* File Manager */}
         <Card
           className={`p-6 min-h-[400px] ${dragOver ? 'drag-over' : ''}`}
-          onDragOver={handleDragOver}
+          onDragOver={(e) => {
+            handleDragOver(e);
+            if (draggedItem) {
+              e.preventDefault();
+            }
+          }}
           onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
+          onDrop={(e) => {
+            if (e.dataTransfer.files.length > 0) {
+              handleDrop(e);
+            } else {
+              handleDropOnRoot(e);
+            }
+          }}
           data-testid="file-manager"
         >
           {folders.length === 0 && files.length === 0 ? (
@@ -498,31 +509,43 @@ export default function Dashboard({ user, setUser }) {
               <p className="text-sm">Drag and drop files here or click Upload</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="space-y-2">
               {/* Folders */}
               {folders.map((folder) => (
                 <div
                   key={folder.id}
-                  className="p-4 border border-border rounded-lg hover:bg-background-secondary cursor-pointer transition-all group"
+                  draggable
+                  onDragStart={() => handleDragStart(folder, 'folder')}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => handleDragOverItem(e, folder, 'folder')}
+                  onDragLeave={handleDragLeaveItem}
+                  onDrop={(e) => handleDropOnFolder(e, folder)}
+                  className={`p-4 border border-border rounded-lg hover:bg-background-secondary cursor-pointer transition-all group ${
+                    dropTarget === folder.id ? 'bg-sky-100 dark:bg-sky-900/20 border-sky-500' : ''
+                  } ${draggedItem?.id === folder.id ? 'opacity-50' : ''}`}
                   data-testid={`folder-${folder.id}`}
                 >
-                  <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center justify-between">
                     <div
-                      className="flex items-center gap-3 flex-1"
+                      className="flex items-center gap-3 flex-1 min-w-0"
                       onClick={() => setCurrentFolder(folder.id)}
                     >
-                      <Folder className="w-8 h-8 text-sky-500 flex-shrink-0" />
+                      <Folder className="w-6 h-6 text-sky-500 flex-shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className="font-medium truncate" data-testid={`folder-name-${folder.id}`}>{folder.name}</p>
                         <p className="text-xs text-muted-foreground">{formatSize(folder.size)}</p>
                       </div>
+                      <div className="text-xs text-muted-foreground">
+                        Folder
+                      </div>
                     </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
                       <Button
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setMoveTarget({ ...folder, type: 'folder' });
                           setShowMoveDialog(true);
                         }}
@@ -534,7 +557,8 @@ export default function Dashboard({ user, setUser }) {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-red-500 hover:text-red-600"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setDeleteTarget({ ...folder, type: 'folder' });
                           setShowDeleteDialog(true);
                         }}
@@ -551,18 +575,26 @@ export default function Dashboard({ user, setUser }) {
               {files.map((file) => (
                 <div
                   key={file.id}
-                  className="p-4 border border-border rounded-lg hover:bg-background-secondary transition-all group"
+                  draggable
+                  onDragStart={() => handleDragStart(file, 'file')}
+                  onDragEnd={handleDragEnd}
+                  className={`p-4 border border-border rounded-lg hover:bg-background-secondary transition-all group ${
+                    draggedItem?.id === file.id ? 'opacity-50' : ''
+                  }`}
                   data-testid={`file-${file.id}`}
                 >
-                  <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <File className="w-8 h-8 text-blue-500 flex-shrink-0" />
+                      <File className="w-6 h-6 text-blue-500 flex-shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className="font-medium truncate" data-testid={`file-name-${file.id}`}>{file.name}</p>
                         <p className="text-xs text-muted-foreground">{formatSize(file.size)}</p>
                       </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(file.created_at).toLocaleDateString()}
+                      </div>
                     </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
                       <Button
                         variant="ghost"
                         size="icon"
