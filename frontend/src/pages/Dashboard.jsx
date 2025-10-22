@@ -234,6 +234,21 @@ export default function Dashboard({ user, setUser }) {
     handleFileUpload(Array.from(e.dataTransfer.files));
   };
 
+  const handleThemeToggle = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((rect.left + rect.width / 2) / window.innerWidth) * 100;
+    const y = ((rect.top + rect.height / 2) / window.innerHeight) * 100;
+    
+    document.documentElement.style.setProperty('--ripple-x', `${x}%`);
+    document.documentElement.style.setProperty('--ripple-y', `${y}%`);
+    document.documentElement.classList.add('theme-transition');
+    
+    setTimeout(() => {
+      setTheme(theme === 'light' ? 'dark' : 'light');
+      document.documentElement.classList.remove('theme-transition');
+    }, 50);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
