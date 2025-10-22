@@ -251,6 +251,87 @@ export default function Dashboard({ user, setUser }) {
     }, 50);
   };
 
+  const handleDragStart = (item, type) => {
+    setDraggedItem({ ...item, type });
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItem(null);
+    setDropTarget(null);
+  };
+
+  const handleDragOverItem = (e, item, type) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (type === 'folder' && draggedItem && draggedItem.id !== item.id) {
+      setDropTarget(item.id);
+    }
+  };
+
+  const handleDragLeaveItem = () => {
+    setDropTarget(null);
+  };
+
+  const handleDropOnFolder = async (e, targetFolder) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDropTarget(null);
+    
+    if (!draggedItem || draggedItem.id === targetFolder.id) return;
+    
+    try {
+      if (draggedItem.type === 'file') {
+        await axios.post(`${API}/files/move`, {
+          file_id: draggedItem.id,
+          target_folder_id: targetFolder.id
+        }, getAuthHeader());
+        toast.success('File moved successfully');
+      } else if (draggedItem.type === 'folder') {
+        await axios.post(`${API}/folders/move`, {
+          folder_id: draggedItem.id,
+          target_parent_id: targetFolder.id
+        }, getAuthHeader());
+        toast.success('Folder moved successfully');
+      }
+      loadFiles();
+      loadFolders();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to move');
+    }
+    
+    setDraggedItem(null);
+  };
+
+  const handleDropOnRoot = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDropTarget(null);
+    
+    if (!draggedItem) return;
+    
+    try {
+      if (draggedItem.type === 'file') {
+        await axios.post(`${API}/files/move`, {
+          file_id: draggedItem.id,
+          target_folder_id: null
+        }, getAuthHeader());
+        toast.success('File moved to root');
+      } else if (draggedItem.type === 'folder') {
+        await axios.post(`${API}/folders/move`, {
+          folder_id: draggedItem.id,
+          target_parent_id: null
+        }, getAuthHeader());
+        toast.success('Folder moved to root');
+      }
+      loadFiles();
+      loadFolders();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to move');
+    }
+    
+    setDraggedItem(null);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
