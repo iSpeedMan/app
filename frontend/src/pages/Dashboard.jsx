@@ -32,6 +32,8 @@ export default function Dashboard({ user, setUser }) {
   
   const fileInputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);
+  const [draggedItem, setDraggedItem] = useState(null);
+  const [dropTarget, setDropTarget] = useState(null);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
