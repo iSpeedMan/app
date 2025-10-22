@@ -1,0 +1,189 @@
+import { useState } from 'react';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Cloud, Lock, Mail, User } from 'lucide-react';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
+export default function Login({ setUser }) {
+  const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
+  
+  const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [registerData, setRegisterData] = useState({ username: '', email: '', password: '' });
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      const response = await axios.post(`${API}/auth/login`, loginData);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      setUser(response.data.user);
+      toast.success('Login successful!');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      await axios.post(`${API}/auth/register`, registerData);
+      toast.success('Registration successful! Please login.');
+      setIsLogin(true);
+      setRegisterData({ username: '', email: '', password: '' });
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-500 mb-4 shadow-lg">
+            <Cloud className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent mb-2">Mini Cloud</h1>
+          <p className="text-muted-foreground">Your personal cloud storage</p>
+        </div>
+
+        <Card className="shadow-xl border-slate-200 dark:border-slate-700 animate-slide-in">
+          <Tabs value={isLogin ? 'login' : 'register'} onValueChange={(v) => setIsLogin(v === 'login')}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login" data-testid="login-tab">Login</TabsTrigger>
+              <TabsTrigger value="register" data-testid="register-tab">Register</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="login">
+              <CardHeader>
+                <CardTitle>Welcome back</CardTitle>
+                <CardDescription>Enter your credentials to access your cloud</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="login-username">Username</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="login-username"
+                        data-testid="login-username"
+                        type="text"
+                        placeholder="Enter username"
+                        className="pl-10"
+                        value={loginData.username}
+                        onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="login-password">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="login-password"
+                        data-testid="login-password"
+                        type="password"
+                        placeholder="Enter password"
+                        className="pl-10"
+                        value={loginData.password}
+                        onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading} data-testid="login-submit">
+                    {loading ? 'Logging in...' : 'Login'}
+                  </Button>
+                </form>
+              </CardContent>
+            </TabsContent>
+            
+            <TabsContent value="register">
+              <CardHeader>
+                <CardTitle>Create account</CardTitle>
+                <CardDescription>Get started with your personal cloud storage</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="register-username">Username</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="register-username"
+                        data-testid="register-username"
+                        type="text"
+                        placeholder="Choose username"
+                        className="pl-10"
+                        value={registerData.username}
+                        onChange={(e) => setRegisterData({ ...registerData, username: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="register-email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="register-email"
+                        data-testid="register-email"
+                        type="email"
+                        placeholder="your@email.com"
+                        className="pl-10"
+                        value={registerData.email}
+                        onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="register-password">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="register-password"
+                        data-testid="register-password"
+                        type="password"
+                        placeholder="Create strong password"
+                        className="pl-10"
+                        value={registerData.password}
+                        onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">8+ chars, uppercase, lowercase, special character</p>
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading} data-testid="register-submit">
+                    {loading ? 'Creating account...' : 'Create account'}
+                  </Button>
+                </form>
+              </CardContent>
+            </TabsContent>
+          </Tabs>
+        </Card>
+        
+        <div className="mt-4 text-center text-sm text-muted-foreground">
+          <p>Demo: admin / admin</p>
+        </div>
+      </div>
+    </div>
+  );
+}
