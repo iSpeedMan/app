@@ -39,16 +39,70 @@ export default function Profile({ user, setUser }) {
     }
   };
 
+  const validatePassword = (password) => {
+    const errors = [];
+    
+    if (password.length < 8) {
+      errors.push('Minimum 8 characters');
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push('At least one uppercase letter');
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.push('At least one lowercase letter');
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password)) {
+      errors.push('At least one special character');
+    }
+    
+    return errors;
+  };
+
   const handlePasswordChange = async (e) => {
     e.preventDefault();
+    setPasswordErrors({});
+    
+    // Validate current password
+    if (!passwordData.current_password) {
+      setPasswordErrors({ current: 'Current password is required' });
+      return;
+    }
+    
+    // Validate new password
+    const validationErrors = validatePassword(passwordData.new_password);
+    if (validationErrors.length > 0) {
+      setPasswordErrors({ new: validationErrors.join(', ') });
+      return;
+    }
+    
+    // Check if passwords match
+    if (passwordData.new_password !== passwordData.confirm_password) {
+      setPasswordErrors({ confirm: 'Passwords do not match' });
+      return;
+    }
+    
+    // Check if new password is different from current
+    if (passwordData.current_password === passwordData.new_password) {
+      setPasswordErrors({ new: 'New password must be different from current password' });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await axios.post(`${API}/auth/change-password`, passwordData, getAuthHeader());
+      await axios.post(`${API}/auth/change-password`, {
+        current_password: passwordData.current_password,
+        new_password: passwordData.new_password
+      }, getAuthHeader());
       toast.success('Password changed successfully');
-      setPasswordData({ current_password: '', new_password: '' });
+      setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to change password');
+      const errorMsg = error.response?.data?.detail || 'Failed to change password';
+      if (errorMsg.includes('incorrect')) {
+        setPasswordErrors({ current: 'Current password is incorrect' });
+      } else {
+        toast.error(errorMsg);
+      }
     } finally {
       setLoading(false);
     }
