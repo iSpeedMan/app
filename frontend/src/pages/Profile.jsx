@@ -16,9 +16,11 @@ export default function Profile({ user, setUser }) {
   const [stats, setStats] = useState({ storage_used: 0, file_count: 0, folder_count: 0 });
   const [passwordData, setPasswordData] = useState({
     current_password: '',
-    new_password: ''
+    new_password: '',
+    confirm_password: ''
   });
   const [loading, setLoading] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState({});
 
   useEffect(() => {
     loadStats();
