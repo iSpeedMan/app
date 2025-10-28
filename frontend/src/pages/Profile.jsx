@@ -236,9 +236,16 @@ export default function Profile({ user, setUser }) {
                     type="password"
                     placeholder="Enter current password"
                     value={passwordData.current_password}
-                    onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
+                    onChange={(e) => {
+                      setPasswordData({ ...passwordData, current_password: e.target.value });
+                      setPasswordErrors({});
+                    }}
                     required
+                    className={passwordErrors.current ? 'border-red-500' : ''}
                   />
+                  {passwordErrors.current && (
+                    <p className="text-xs text-red-500" data-testid="current-password-error">{passwordErrors.current}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="new-password">New Password</Label>
@@ -248,12 +255,41 @@ export default function Profile({ user, setUser }) {
                     type="password"
                     placeholder="Enter new password"
                     value={passwordData.new_password}
-                    onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
+                    onChange={(e) => {
+                      setPasswordData({ ...passwordData, new_password: e.target.value });
+                      setPasswordErrors({});
+                    }}
                     required
+                    className={passwordErrors.new ? 'border-red-500' : ''}
                   />
+                  {passwordErrors.new && (
+                    <p className="text-xs text-red-500" data-testid="new-password-error">{passwordErrors.new}</p>
+                  )}
                   <p className="text-xs text-muted-foreground">
-                    Password must be at least 8 characters with uppercase, lowercase, and special character
+                    • Minimum 8 characters<br/>
+                    • At least one uppercase letter<br/>
+                    • At least one lowercase letter<br/>
+                    • At least one special character (!@#$%^&*...)
                   </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <Input
+                    id="confirm-password"
+                    data-testid="confirm-password-input"
+                    type="password"
+                    placeholder="Confirm new password"
+                    value={passwordData.confirm_password}
+                    onChange={(e) => {
+                      setPasswordData({ ...passwordData, confirm_password: e.target.value });
+                      setPasswordErrors({});
+                    }}
+                    required
+                    className={passwordErrors.confirm ? 'border-red-500' : ''}
+                  />
+                  {passwordErrors.confirm && (
+                    <p className="text-xs text-red-500" data-testid="confirm-password-error">{passwordErrors.confirm}</p>
+                  )}
                 </div>
                 <Button type="submit" disabled={loading} data-testid="change-password-submit" className="bg-sky-500 hover:bg-sky-600">
                   {loading ? 'Changing...' : 'Change Password'}
