@@ -671,7 +671,7 @@ export default function Dashboard({ user, setUser }) {
           <div className="space-y-2 max-h-[300px] overflow-y-auto">
             <Button
               variant={moveDestination === null ? 'default' : 'outline'}
-              className="w-full justify-start"
+              className={`w-full justify-start ${moveDestination === null ? 'bg-sky-500 hover:bg-sky-600 text-white' : ''}`}
               onClick={() => setMoveDestination(null)}
               data-testid="move-to-root"
             >
@@ -682,7 +682,7 @@ export default function Dashboard({ user, setUser }) {
               <Button
                 key={folder.id}
                 variant={moveDestination === folder.id ? 'default' : 'outline'}
-                className="w-full justify-start"
+                className={`w-full justify-start ${moveDestination === folder.id ? 'bg-sky-500 hover:bg-sky-600 text-white' : ''}`}
                 onClick={() => setMoveDestination(folder.id)}
                 disabled={moveTarget?.id === folder.id}
                 data-testid={`move-to-${folder.id}`}
@@ -693,7 +693,13 @@ export default function Dashboard({ user, setUser }) {
             ))}
           </div>
           <DialogFooter>
-            <Button onClick={handleMove} data-testid="move-confirm">Move</Button>
+            <Button 
+              onClick={handleMove} 
+              data-testid="move-confirm"
+              className="bg-sky-500 hover:bg-sky-600 text-white"
+            >
+              Move
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
