@@ -41,15 +41,53 @@ export default function Login({ setUser }) {
     }
   };
 
+  const validatePassword = (password) => {
+    const errors = [];
+    
+    if (password.length < 8) {
+      errors.push('Minimum 8 characters');
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push('At least one uppercase letter');
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.push('At least one lowercase letter');
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password)) {
+      errors.push('At least one special character');
+    }
+    
+    return errors;
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
+    setRegisterErrors({});
+    
+    // Validate password
+    const validationErrors = validatePassword(registerData.password);
+    if (validationErrors.length > 0) {
+      setRegisterErrors({ password: validationErrors.join(', ') });
+      return;
+    }
+    
+    // Check if passwords match
+    if (registerData.password !== registerData.confirm_password) {
+      setRegisterErrors({ confirm: 'Passwords do not match' });
+      return;
+    }
+    
     setLoading(true);
     
     try {
-      await axios.post(`${API}/auth/register`, registerData);
+      await axios.post(`${API}/auth/register`, {
+        username: registerData.username,
+        email: registerData.email,
+        password: registerData.password
+      });
       toast.success('Registration successful! Please login.');
       setIsLogin(true);
-      setRegisterData({ username: '', email: '', password: '' });
+      setRegisterData({ username: '', email: '', password: '', confirm_password: '' });
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Registration failed');
     } finally {
