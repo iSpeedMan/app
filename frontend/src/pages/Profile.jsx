@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Cloud, User, Mail, Shield, Lock, ArrowLeft, HardDrive, File, Folder } from 'lucide-react';
+import { Cloud, User, Mail, Shield, Lock, ArrowLeft, HardDrive, File, Folder, Eye, EyeOff } from 'lucide-react';
+import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
 import { useNavigate } from 'react-router-dom';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
