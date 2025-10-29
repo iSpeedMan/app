@@ -320,7 +320,7 @@ export default function Profile({ user, setUser }) {
                     <p className="text-xs text-red-500" data-testid="confirm-password-error">{passwordErrors.confirm}</p>
                   )}
                 </div>
-                <Button type="submit" disabled={loading} data-testid="change-password-submit" className="bg-sky-500 hover:bg-sky-600">
+                <Button type="submit" disabled={loading} data-testid="change-password-submit" className="bg-sky-500 hover:bg-sky-600 text-white">
                   {loading ? 'Changing...' : 'Change Password'}
                 </Button>
               </form>
