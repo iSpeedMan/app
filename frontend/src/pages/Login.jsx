@@ -80,14 +80,23 @@ export default function Login({ setUser }) {
     setLoading(true);
     
     try {
+      // Register user
       await axios.post(`${API}/auth/register`, {
         username: registerData.username,
         email: registerData.email,
         password: registerData.password
       });
-      toast.success('Registration successful! Please login.');
-      setIsLogin(true);
-      setRegisterData({ username: '', email: '', password: '', confirm_password: '' });
+      
+      // Auto login after successful registration
+      const loginResponse = await axios.post(`${API}/auth/login`, {
+        username: registerData.username,
+        password: registerData.password
+      });
+      
+      localStorage.setItem('token', loginResponse.data.token);
+      localStorage.setItem('user', JSON.stringify(loginResponse.data.user));
+      setUser(loginResponse.data.user);
+      toast.success('Registration successful! Welcome to Mini Cloud!');
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Registration failed');
     } finally {
