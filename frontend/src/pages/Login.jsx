@@ -213,15 +213,59 @@ export default function Login({ setUser }) {
                       <Input
                         id="register-password"
                         data-testid="register-password"
-                        type="password"
+                        type={showRegisterPassword ? "text" : "password"}
                         placeholder="Create strong password"
-                        className="pl-10"
+                        className={`pl-10 pr-10 ${registerErrors.password ? 'border-red-500' : ''}`}
                         value={registerData.password}
-                        onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                        onChange={(e) => {
+                          setRegisterData({ ...registerData, password: e.target.value });
+                          setRegisterErrors({});
+                        }}
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                        data-testid="toggle-register-password"
+                      >
+                        {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
-                    <p className="text-xs text-muted-foreground">8+ chars, uppercase, lowercase, special character</p>
+                    {registerErrors.password && (
+                      <p className="text-xs text-red-500" data-testid="register-password-error">{registerErrors.password}</p>
+                    )}
+                    <PasswordStrengthIndicator password={registerData.password} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="register-confirm-password">Confirm Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="register-confirm-password"
+                        data-testid="register-confirm-password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Confirm password"
+                        className={`pl-10 pr-10 ${registerErrors.confirm ? 'border-red-500' : ''}`}
+                        value={registerData.confirm_password}
+                        onChange={(e) => {
+                          setRegisterData({ ...registerData, confirm_password: e.target.value });
+                          setRegisterErrors({});
+                        }}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                        data-testid="toggle-confirm-password"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    {registerErrors.confirm && (
+                      <p className="text-xs text-red-500" data-testid="register-confirm-error">{registerErrors.confirm}</p>
+                    )}
                   </div>
                   <Button type="submit" className="w-full" disabled={loading} data-testid="register-submit">
                     {loading ? 'Creating account...' : 'Create account'}
