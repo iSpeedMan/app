@@ -143,13 +143,21 @@ export default function Login({ setUser }) {
                       <Input
                         id="login-password"
                         data-testid="login-password"
-                        type="password"
+                        type={showLoginPassword ? "text" : "password"}
                         placeholder="Enter password"
-                        className="pl-10"
+                        className="pl-10 pr-10"
                         value={loginData.password}
                         onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowLoginPassword(!showLoginPassword)}
+                        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                        data-testid="toggle-login-password"
+                      >
+                        {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={loading} data-testid="login-submit">
