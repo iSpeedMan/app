@@ -276,7 +276,7 @@ export default function Login({ setUser }) {
                       <p className="text-xs text-red-500" data-testid="register-confirm-error">{registerErrors.confirm}</p>
                     )}
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading} data-testid="register-submit">
+                  <Button type="submit" className="w-full bg-sky-500 hover:bg-sky-600 text-white" disabled={loading} data-testid="register-submit">
                     {loading ? 'Creating account...' : 'Create account'}
                   </Button>
                 </form>
