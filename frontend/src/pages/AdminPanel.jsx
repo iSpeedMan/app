@@ -289,7 +289,13 @@ export default function AdminPanel({ user }) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowPasswordDialog(false)}>Cancel</Button>
-            <Button onClick={handleChangePassword} data-testid="admin-change-password-submit">Change Password</Button>
+            <Button 
+              onClick={handleChangePassword} 
+              data-testid="admin-change-password-submit"
+              className="bg-sky-500 hover:bg-sky-600 text-white"
+            >
+              Change Password
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

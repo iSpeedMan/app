@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Cloud, Lock, Mail, User } from 'lucide-react';
+import { Cloud, Lock, Mail, User, Eye, EyeOff } from 'lucide-react';
+import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -16,7 +17,12 @@ export default function Login({ setUser }) {
   const [loading, setLoading] = useState(false);
   
   const [loginData, setLoginData] = useState({ username: '', password: '' });
-  const [registerData, setRegisterData] = useState({ username: '', email: '', password: '' });
+  const [registerData, setRegisterData] = useState({ username: '', email: '', password: '', confirm_password: '' });
+  
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [registerErrors, setRegisterErrors] = useState({});
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -35,15 +41,62 @@ export default function Login({ setUser }) {
     }
   };
 
+  const validatePassword = (password) => {
+    const errors = [];
+    
+    if (password.length < 8) {
+      errors.push('Minimum 8 characters');
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push('At least one uppercase letter');
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.push('At least one lowercase letter');
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password)) {
+      errors.push('At least one special character');
+    }
+    
+    return errors;
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
+    setRegisterErrors({});
+    
+    // Validate password
+    const validationErrors = validatePassword(registerData.password);
+    if (validationErrors.length > 0) {
+      setRegisterErrors({ password: validationErrors.join(', ') });
+      return;
+    }
+    
+    // Check if passwords match
+    if (registerData.password !== registerData.confirm_password) {
+      setRegisterErrors({ confirm: 'Passwords do not match' });
+      return;
+    }
+    
     setLoading(true);
     
     try {
-      await axios.post(`${API}/auth/register`, registerData);
-      toast.success('Registration successful! Please login.');
-      setIsLogin(true);
-      setRegisterData({ username: '', email: '', password: '' });
+      // Register user
+      await axios.post(`${API}/auth/register`, {
+        username: registerData.username,
+        email: registerData.email,
+        password: registerData.password
+      });
+      
+      // Auto login after successful registration
+      const loginResponse = await axios.post(`${API}/auth/login`, {
+        username: registerData.username,
+        password: registerData.password
+      });
+      
+      localStorage.setItem('token', loginResponse.data.token);
+      localStorage.setItem('user', JSON.stringify(loginResponse.data.user));
+      setUser(loginResponse.data.user);
+      toast.success('Registration successful! Welcome to Mini Cloud!');
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Registration failed');
     } finally {
@@ -99,16 +152,24 @@ export default function Login({ setUser }) {
                       <Input
                         id="login-password"
                         data-testid="login-password"
-                        type="password"
+                        type={showLoginPassword ? "text" : "password"}
                         placeholder="Enter password"
-                        className="pl-10"
+                        className="pl-10 pr-10"
                         value={loginData.password}
                         onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowLoginPassword(!showLoginPassword)}
+                        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                        data-testid="toggle-login-password"
+                      >
+                        {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading} data-testid="login-submit">
+                  <Button type="submit" className="w-full bg-sky-500 hover:bg-sky-600 text-white" disabled={loading} data-testid="login-submit">
                     {loading ? 'Logging in...' : 'Login'}
                   </Button>
                 </form>
@@ -161,17 +222,61 @@ export default function Login({ setUser }) {
                       <Input
                         id="register-password"
                         data-testid="register-password"
-                        type="password"
+                        type={showRegisterPassword ? "text" : "password"}
                         placeholder="Create strong password"
-                        className="pl-10"
+                        className={`pl-10 pr-10 ${registerErrors.password ? 'border-red-500' : ''}`}
                         value={registerData.password}
-                        onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                        onChange={(e) => {
+                          setRegisterData({ ...registerData, password: e.target.value });
+                          setRegisterErrors({});
+                        }}
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                        data-testid="toggle-register-password"
+                      >
+                        {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
-                    <p className="text-xs text-muted-foreground">8+ chars, uppercase, lowercase, special character</p>
+                    {registerErrors.password && (
+                      <p className="text-xs text-red-500" data-testid="register-password-error">{registerErrors.password}</p>
+                    )}
+                    <PasswordStrengthIndicator password={registerData.password} />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading} data-testid="register-submit">
+                  <div className="space-y-2">
+                    <Label htmlFor="register-confirm-password">Confirm Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="register-confirm-password"
+                        data-testid="register-confirm-password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Confirm password"
+                        className={`pl-10 pr-10 ${registerErrors.confirm ? 'border-red-500' : ''}`}
+                        value={registerData.confirm_password}
+                        onChange={(e) => {
+                          setRegisterData({ ...registerData, confirm_password: e.target.value });
+                          setRegisterErrors({});
+                        }}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                        data-testid="toggle-confirm-password"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    {registerErrors.confirm && (
+                      <p className="text-xs text-red-500" data-testid="register-confirm-error">{registerErrors.confirm}</p>
+                    )}
+                  </div>
+                  <Button type="submit" className="w-full bg-sky-500 hover:bg-sky-600 text-white" disabled={loading} data-testid="register-submit">
                     {loading ? 'Creating account...' : 'Create account'}
                   </Button>
                 </form>

@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Cloud, User, Mail, Shield, Lock, ArrowLeft, HardDrive, File, Folder } from 'lucide-react';
+import { Cloud, User, Mail, Shield, Lock, ArrowLeft, HardDrive, File, Folder, Eye, EyeOff } from 'lucide-react';
+import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
 import { useNavigate } from 'react-router-dom';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -16,9 +17,14 @@ export default function Profile({ user, setUser }) {
   const [stats, setStats] = useState({ storage_used: 0, file_count: 0, folder_count: 0 });
   const [passwordData, setPasswordData] = useState({
     current_password: '',
-    new_password: ''
+    new_password: '',
+    confirm_password: ''
   });
   const [loading, setLoading] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState({});
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     loadStats();
@@ -37,16 +43,70 @@ export default function Profile({ user, setUser }) {
     }
   };
 
+  const validatePassword = (password) => {
+    const errors = [];
+    
+    if (password.length < 8) {
+      errors.push('Minimum 8 characters');
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push('At least one uppercase letter');
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.push('At least one lowercase letter');
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password)) {
+      errors.push('At least one special character');
+    }
+    
+    return errors;
+  };
+
   const handlePasswordChange = async (e) => {
     e.preventDefault();
+    setPasswordErrors({});
+    
+    // Validate current password
+    if (!passwordData.current_password) {
+      setPasswordErrors({ current: 'Current password is required' });
+      return;
+    }
+    
+    // Validate new password
+    const validationErrors = validatePassword(passwordData.new_password);
+    if (validationErrors.length > 0) {
+      setPasswordErrors({ new: validationErrors.join(', ') });
+      return;
+    }
+    
+    // Check if passwords match
+    if (passwordData.new_password !== passwordData.confirm_password) {
+      setPasswordErrors({ confirm: 'Passwords do not match' });
+      return;
+    }
+    
+    // Check if new password is different from current
+    if (passwordData.current_password === passwordData.new_password) {
+      setPasswordErrors({ new: 'New password must be different from current password' });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await axios.post(`${API}/auth/change-password`, passwordData, getAuthHeader());
+      await axios.post(`${API}/auth/change-password`, {
+        current_password: passwordData.current_password,
+        new_password: passwordData.new_password
+      }, getAuthHeader());
       toast.success('Password changed successfully');
-      setPasswordData({ current_password: '', new_password: '' });
+      setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to change password');
+      const errorMsg = error.response?.data?.detail || 'Failed to change password';
+      if (errorMsg.includes('incorrect')) {
+        setPasswordErrors({ current: 'Current password is incorrect' });
+      } else {
+        toast.error(errorMsg);
+      }
     } finally {
       setLoading(false);
     }
@@ -174,32 +234,93 @@ export default function Profile({ user, setUser }) {
               <form onSubmit={handlePasswordChange} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="current-password">Current Password</Label>
-                  <Input
-                    id="current-password"
-                    data-testid="current-password-input"
-                    type="password"
-                    placeholder="Enter current password"
-                    value={passwordData.current_password}
-                    onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="current-password"
+                      data-testid="current-password-input"
+                      type={showCurrentPassword ? "text" : "password"}
+                      placeholder="Enter current password"
+                      className={`pr-10 ${passwordErrors.current ? 'border-red-500' : ''}`}
+                      value={passwordData.current_password}
+                      onChange={(e) => {
+                        setPasswordData({ ...passwordData, current_password: e.target.value });
+                        setPasswordErrors({});
+                      }}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                      data-testid="toggle-current-password"
+                    >
+                      {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {passwordErrors.current && (
+                    <p className="text-xs text-red-500" data-testid="current-password-error">{passwordErrors.current}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="new-password">New Password</Label>
-                  <Input
-                    id="new-password"
-                    data-testid="new-password-input"
-                    type="password"
-                    placeholder="Enter new password"
-                    value={passwordData.new_password}
-                    onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Password must be at least 8 characters with uppercase, lowercase, and special character
-                  </p>
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      data-testid="new-password-input"
+                      type={showNewPassword ? "text" : "password"}
+                      placeholder="Enter new password"
+                      className={`pr-10 ${passwordErrors.new ? 'border-red-500' : ''}`}
+                      value={passwordData.new_password}
+                      onChange={(e) => {
+                        setPasswordData({ ...passwordData, new_password: e.target.value });
+                        setPasswordErrors({});
+                      }}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                      data-testid="toggle-new-password"
+                    >
+                      {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {passwordErrors.new && (
+                    <p className="text-xs text-red-500" data-testid="new-password-error">{passwordErrors.new}</p>
+                  )}
+                  <PasswordStrengthIndicator password={passwordData.new_password} />
                 </div>
-                <Button type="submit" disabled={loading} data-testid="change-password-submit" className="bg-sky-500 hover:bg-sky-600">
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirm-password"
+                      data-testid="confirm-password-input"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm new password"
+                      className={`pr-10 ${passwordErrors.confirm ? 'border-red-500' : ''}`}
+                      value={passwordData.confirm_password}
+                      onChange={(e) => {
+                        setPasswordData({ ...passwordData, confirm_password: e.target.value });
+                        setPasswordErrors({});
+                      }}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                      data-testid="toggle-confirm-password-profile"
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {passwordErrors.confirm && (
+                    <p className="text-xs text-red-500" data-testid="confirm-password-error">{passwordErrors.confirm}</p>
+                  )}
+                </div>
+                <Button type="submit" disabled={loading} data-testid="change-password-submit" className="bg-sky-500 hover:bg-sky-600 text-white">
                   {loading ? 'Changing...' : 'Change Password'}
                 </Button>
               </form>
