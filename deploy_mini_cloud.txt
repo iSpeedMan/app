@@ -1,0 +1,155 @@
+#!/bin/bash
+
+# Скрипт для развертывания Mini Cloud с проверкой/установкой MongoDB и базы данных
+# Запуск: ./deploy_mini_cloud.sh [путь_к_директории] (по умолчанию: текущая)
+
+DEPLOY_DIR="${1:-$(pwd)/mini_cloud_deploy}"
+REPO_URL="https://github.com/iSpeedMan/app.git"
+BACKEND_PORT=8001
+FRONTEND_PORT=3000
+DB_NAME="minicloud_database"
+MONGO_URL="mongodb://localhost:27017"
+JWT_SECRET=$(python3 -c 'import secrets; print(secrets.token_hex(32))')  # Генерация ключа
+
+# Логирование
+LOG_FILE="$DEPLOY_DIR/deploy.log"
+echo "Начало развертывания: $(date)" > "$LOG_FILE"
+
+# Функция для логирования
+log() {
+    echo "[$(date)] $1" | tee -a "$LOG_FILE"
+}
+
+# Проверка и установка зависимостей
+log "Проверка зависимостей..."
+command -v git >/dev/null 2>&1 || { log "Git не установлен. Устанавливаем..."; sudo apt update && sudo apt install -y git; }
+command -v python3 >/dev/null 2>&1 || { log "Python3 не установлен. Устанавливаем..."; sudo apt update && sudo apt install -y python3 python3-pip; }
+command -v pip >/dev/null 2>&1 || { log "Pip не установлен. Устанавливаем..."; sudo apt install -y python3-pip; }
+command -v yarn >/dev/null 2>&1 || { log "Yarn не установлен. Устанавливаем..."; sudo apt update && sudo apt install -y npm && npm install -g yarn; }
+command -v uvicorn >/dev/null 2>&1 || { log "Uvicorn не установлен. Устанавливаем..."; pip install uvicorn; }
+
+# Проверка и установка MongoDB
+log "Проверка MongoDB..."
+if ! command -v mongod >/dev/null 2>&1; then
+    log "MongoDB не установлен. Устанавливаем..."
+    sudo apt update
+    sudo apt install -y gnupg curl
+    curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg
+    echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+    sudo apt update
+    sudo apt install -y mongodb-org
+    log "MongoDB установлен."
+else
+    log "MongoDB уже установлен."
+fi
+
+# Запуск MongoDB
+log "Запуск MongoDB..."
+if ! pgrep mongod >/dev/null; then
+    sudo systemctl start mongod || { log "Ошибка запуска MongoDB. Попробуем запустить напрямую..."; mongod --fork --logpath /var/log/mongodb.log; }
+    log "MongoDB запущен."
+else
+    log "MongoDB уже запущен."
+fi
+
+# Проверка и создание базы данных
+log "Проверка базы данных $DB_NAME..."
+cat <<EOL > check_db.py
+import pymongo
+from pymongo.errors import ConnectionError
+
+try:
+    client = pymongo.MongoClient("$MONGO_URL")
+    db = client["$DB_NAME"]
+    # Создаём тестовую коллекцию, чтобы база появилась
+    db["test_collection"].insert_one({"init": True})
+    print("База данных $DB_NAME готова.")
+except ConnectionError:
+    print("Ошибка подключения к MongoDB. Проверьте, что MongoDB запущен.")
+    exit(1)
+EOL
+
+python3 check_db.py >> "$LOG_FILE" 2>&1
+if [ $? -ne 0 ]; then
+    log "Ошибка настройки базы данных. Проверьте логи."
+    exit 1
+fi
+rm check_db.py
+log "База данных $DB_NAME проверена/создана."
+
+# Клонирование репозитория
+log "Клонирование репозитория..."
+mkdir -p "$DEPLOY_DIR"
+cd "$DEPLOY_DIR"
+git clone "$REPO_URL" . >> "$LOG_FILE" 2>&1
+if [ $? -ne 0 ]; then
+    log "Ошибка клонирования репозитория."
+    exit 1
+fi
+log "Репозиторий клонирован."
+
+# Настройка backend
+log "Настройка backend..."
+cd backend
+pip install -r requirements.txt >> "$LOG_FILE" 2>&1
+if [ $? -ne 0 ]; then
+    log "Ошибка установки зависимостей backend."
+    exit 1
+fi
+cat <<EOL > .env
+MONGO_URL="$MONGO_URL"
+DB_NAME="$DB_NAME"
+JWT_SECRET_KEY="$JWT_SECRET"
+CORS_ORIGINS="*"
+EOL
+log "Backend .env создан. JWT_SECRET: $JWT_SECRET"
+
+# Настройка frontend
+log "Настройка frontend..."
+cd ../frontend
+yarn install >> "$LOG_FILE" 2>&1
+if [ $? -ne 0 ]; then
+    log "Ошибка установки зависимостей frontend."
+    exit 1
+fi
+cat <<EOL > .env
+REACT_APP_BACKEND_URL=http://localhost:$BACKEND_PORT
+EOL
+log "Frontend .env создан."
+
+# Создание директории uploads
+log "Создание директории uploads..."
+cd ..
+mkdir -p uploads
+chmod -R 777 uploads
+log "Директория uploads создана с правами 777."
+
+# Запуск backend
+log "Запуск backend..."
+cd backend
+nohup uvicorn server:app --host 0.0.0.0 --port $BACKEND_PORT > backend.log 2>&1 &
+if [ $? -ne 0 ]; then
+    log "Ошибка запуска backend. Проверьте backend.log."
+    exit 1
+fi
+log "Backend запущен на порту $BACKEND_PORT. Логи: backend.log"
+
+# Запуск frontend
+log "Запуск frontend..."
+cd ../frontend
+nohup yarn start > frontend.log 2>&1 &
+if [ $? -ne 0 ]; then
+    log "Ошибка запуска frontend. Проверьте frontend.log."
+    exit 1
+fi
+log "Frontend запущен на порту $FRONTEND_PORT. Логи: frontend.log"
+
+# Итоговое сообщение
+log "Развертывание завершено!"
+echo "Доступ:"
+echo "  Frontend: http://localhost:$FRONTEND_PORT"
+echo "  Backend API: http://localhost:$BACKEND_PORT"
+echo "  Супер-админ: admin / admin1234 (измените пароль сразу!)"
+echo "Логи развертывания: $LOG_FILE"
+echo "Для остановки: killall uvicorn node"
+echo "Для проверки логов: cat $DEPLOY_DIR/backend.log или $DEPLOY_DIR/frontend.log"
