@@ -17,7 +17,12 @@ export default function Login({ setUser }) {
   const [loading, setLoading] = useState(false);
   
   const [loginData, setLoginData] = useState({ username: '', password: '' });
-  const [registerData, setRegisterData] = useState({ username: '', email: '', password: '' });
+  const [registerData, setRegisterData] = useState({ username: '', email: '', password: '', confirm_password: '' });
+  
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [registerErrors, setRegisterErrors] = useState({});
 
   const handleLogin = async (e) => {
     e.preventDefault();
