@@ -22,6 +22,9 @@ export default function Profile({ user, setUser }) {
   });
   const [loading, setLoading] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState({});
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     loadStats();
