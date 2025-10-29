@@ -234,63 +234,88 @@ export default function Profile({ user, setUser }) {
               <form onSubmit={handlePasswordChange} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="current-password">Current Password</Label>
-                  <Input
-                    id="current-password"
-                    data-testid="current-password-input"
-                    type="password"
-                    placeholder="Enter current password"
-                    value={passwordData.current_password}
-                    onChange={(e) => {
-                      setPasswordData({ ...passwordData, current_password: e.target.value });
-                      setPasswordErrors({});
-                    }}
-                    required
-                    className={passwordErrors.current ? 'border-red-500' : ''}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="current-password"
+                      data-testid="current-password-input"
+                      type={showCurrentPassword ? "text" : "password"}
+                      placeholder="Enter current password"
+                      className={`pr-10 ${passwordErrors.current ? 'border-red-500' : ''}`}
+                      value={passwordData.current_password}
+                      onChange={(e) => {
+                        setPasswordData({ ...passwordData, current_password: e.target.value });
+                        setPasswordErrors({});
+                      }}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                      data-testid="toggle-current-password"
+                    >
+                      {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                   {passwordErrors.current && (
                     <p className="text-xs text-red-500" data-testid="current-password-error">{passwordErrors.current}</p>
                   )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="new-password">New Password</Label>
-                  <Input
-                    id="new-password"
-                    data-testid="new-password-input"
-                    type="password"
-                    placeholder="Enter new password"
-                    value={passwordData.new_password}
-                    onChange={(e) => {
-                      setPasswordData({ ...passwordData, new_password: e.target.value });
-                      setPasswordErrors({});
-                    }}
-                    required
-                    className={passwordErrors.new ? 'border-red-500' : ''}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      data-testid="new-password-input"
+                      type={showNewPassword ? "text" : "password"}
+                      placeholder="Enter new password"
+                      className={`pr-10 ${passwordErrors.new ? 'border-red-500' : ''}`}
+                      value={passwordData.new_password}
+                      onChange={(e) => {
+                        setPasswordData({ ...passwordData, new_password: e.target.value });
+                        setPasswordErrors({});
+                      }}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                      data-testid="toggle-new-password"
+                    >
+                      {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                   {passwordErrors.new && (
                     <p className="text-xs text-red-500" data-testid="new-password-error">{passwordErrors.new}</p>
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    • Minimum 8 characters<br/>
-                    • At least one uppercase letter<br/>
-                    • At least one lowercase letter<br/>
-                    • At least one special character (!@#$%^&*...)
-                  </p>
+                  <PasswordStrengthIndicator password={passwordData.new_password} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">Confirm New Password</Label>
-                  <Input
-                    id="confirm-password"
-                    data-testid="confirm-password-input"
-                    type="password"
-                    placeholder="Confirm new password"
-                    value={passwordData.confirm_password}
-                    onChange={(e) => {
-                      setPasswordData({ ...passwordData, confirm_password: e.target.value });
-                      setPasswordErrors({});
-                    }}
-                    required
-                    className={passwordErrors.confirm ? 'border-red-500' : ''}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="confirm-password"
+                      data-testid="confirm-password-input"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm new password"
+                      className={`pr-10 ${passwordErrors.confirm ? 'border-red-500' : ''}`}
+                      value={passwordData.confirm_password}
+                      onChange={(e) => {
+                        setPasswordData({ ...passwordData, confirm_password: e.target.value });
+                        setPasswordErrors({});
+                      }}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                      data-testid="toggle-confirm-password-profile"
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                   {passwordErrors.confirm && (
                     <p className="text-xs text-red-500" data-testid="confirm-password-error">{passwordErrors.confirm}</p>
                   )}
