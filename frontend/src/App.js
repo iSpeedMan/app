@@ -5,7 +5,9 @@ import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
 import AdminPanel from "@/pages/AdminPanel";
+import PluginManagement from "@/pages/PluginManagement";
 import { Toaster } from "@/components/ui/sonner";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 function App() {
   const [user, setUser] = useState(null);
