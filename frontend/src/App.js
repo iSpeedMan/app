@@ -35,30 +35,43 @@ function App() {
     return children;
   };
 
+  const SuperAdminRoute = ({ children }) => {
+    if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    if (!user || !user.is_super_admin) return <Navigate to="/" />;
+    return children;
+  };
+
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={user ? <Navigate to="/" /> : <Login setUser={setUser} />} />
-          <Route path="/" element={
-            <ProtectedRoute>
-              <Dashboard user={user} setUser={setUser} />
-            </ProtectedRoute>
-          } />
-          <Route path="/profile" element={
-            <ProtectedRoute>
-              <Profile user={user} setUser={setUser} />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin" element={
-            <AdminRoute>
-              <AdminPanel user={user} setUser={setUser} />
-            </AdminRoute>
-          } />
-        </Routes>
-      </BrowserRouter>
-      <Toaster position="top-right" />
-    </div>
+    <LanguageProvider>
+      <div className="App">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={user ? <Navigate to="/" /> : <Login setUser={setUser} />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Dashboard user={user} setUser={setUser} />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile user={user} setUser={setUser} />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <AdminRoute>
+                <AdminPanel user={user} setUser={setUser} />
+              </AdminRoute>
+            } />
+            <Route path="/admin/plugins" element={
+              <SuperAdminRoute>
+                <PluginManagement user={user} setUser={setUser} />
+              </SuperAdminRoute>
+            } />
+          </Routes>
+        </BrowserRouter>
+        <Toaster position="top-right" />
+      </div>
+    </LanguageProvider>
   );
 }
 
