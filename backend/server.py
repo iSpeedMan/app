@@ -369,10 +369,11 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 async def upload_file(
     file: UploadFile = File(...),
     folder_id: Optional[str] = Form(None),
+    folder_path: Optional[str] = Form(None),
     current_user: dict = Depends(get_current_user)
 ):
     # Check file extension
-    if is_blocked_file(file.filename):
+    if await is_blocked_file(file.filename):
         raise HTTPException(status_code=400, detail="File type not allowed for security reasons")
     
     # Check file size
