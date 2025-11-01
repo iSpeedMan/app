@@ -792,6 +792,46 @@ async def admin_change_password(password_data: AdminPasswordChange, current_user
     
     return {"message": "Password changed successfully"}
 
+# Plugin management endpoints (Super admin only)
+@api_router.get("/admin/plugins")
+async def get_plugins(current_user: dict = Depends(get_current_user)):
+    # Check if user is super admin
+    if not current_user.get('is_super_admin'):
+        raise HTTPException(status_code=403, detail="Only super admin can access plugins")
+    
+    plugins = await db.plugins.find({}, {"_id": 0}).to_list(None)
+    return plugins
+
+@api_router.put("/admin/plugins/{plugin_name}")
+async def update_plugin(
+    plugin_name: str,
+    plugin_data: PluginUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    # Check if user is super admin
+    if not current_user.get('is_super_admin'):
+        raise HTTPException(status_code=403, detail="Only super admin can modify plugins")
+    
+    # Get plugin
+    plugin = await db.plugins.find_one({"name": plugin_name})
+    if not plugin:
+        raise HTTPException(status_code=404, detail="Plugin not found")
+    
+    # Update plugin
+    update_data = {"enabled": plugin_data.enabled}
+    if plugin_data.settings is not None:
+        update_data["settings"] = plugin_data.settings
+    
+    await db.plugins.update_one(
+        {"name": plugin_name},
+        {"$set": update_data}
+    )
+    
+    await log_security_event("plugin_updated", current_user['user_id'],
+                           f"Updated plugin {plugin_name}: enabled={plugin_data.enabled}")
+    
+    return {"message": "Plugin updated successfully"}
+
 # Include router
 app.include_router(api_router)
 
