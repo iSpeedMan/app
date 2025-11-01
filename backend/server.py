@@ -54,6 +54,7 @@ class User(BaseModel):
     is_super_admin: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     storage_used: int = 0  # in bytes
+    language: str = "ru"  # ru, en
 
 class UserRegister(BaseModel):
     username: str
