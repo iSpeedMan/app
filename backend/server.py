@@ -200,9 +200,19 @@ async def log_security_event(event_type: str, user_id: str, details: str):
         "timestamp": datetime.now(timezone.utc).isoformat()
     })
 
-def is_blocked_file(filename: str) -> bool:
+async def is_blocked_file(filename: str) -> bool:
+    """Check if file is blocked based on plugin settings"""
+    # Get file type filter plugin
+    plugin = await db.plugins.find_one({"name": "file_type_filter"})
+    
+    # If plugin doesn't exist or is disabled, allow all files
+    if not plugin or not plugin.get('enabled', False):
+        return False
+    
+    # Check against blocked extensions from plugin settings
+    blocked_extensions = plugin.get('settings', {}).get('blocked_extensions', [])
     ext = Path(filename).suffix.lower()
-    return ext in BLOCKED_EXTENSIONS
+    return ext in blocked_extensions
 
 async def calculate_folder_size(folder_id: str, user_id: str) -> int:
     """Recursively calculate folder size including all nested files and folders"""
