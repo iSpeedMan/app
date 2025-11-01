@@ -384,6 +384,40 @@ async def upload_file(
     if file_size > MAX_FILE_SIZE:
         raise HTTPException(status_code=400, detail=f"File too large. Maximum size is {MAX_FILE_SIZE / (1024*1024)}MB")
     
+    # Handle folder path (for folder upload)
+    if folder_path and not folder_id:
+        # Create folder structure if it doesn't exist
+        parts = folder_path.strip('/').split('/')
+        parent_id = None
+        
+        for part in parts:
+            if not part:
+                continue
+            
+            # Check if folder exists
+            existing = await db.folders.find_one({
+                "name": part,
+                "parent_id": parent_id,
+                "owner_id": current_user['user_id']
+            })
+            
+            if existing:
+                parent_id = existing['id']
+            else:
+                # Create folder
+                new_folder_id = str(uuid.uuid4())
+                folder_doc = {
+                    "id": new_folder_id,
+                    "name": part,
+                    "parent_id": parent_id,
+                    "owner_id": current_user['user_id'],
+                    "created_at": datetime.now(timezone.utc).isoformat()
+                }
+                await db.folders.insert_one(folder_doc)
+                parent_id = new_folder_id
+        
+        folder_id = parent_id
+    
     # Verify folder belongs to user if specified
     if folder_id:
         folder = await db.folders.find_one({"id": folder_id, "owner_id": current_user['user_id']})
