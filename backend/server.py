@@ -114,6 +114,21 @@ class AdminRoleChange(BaseModel):
     role: str
     make_admin: bool
 
+class LanguageUpdate(BaseModel):
+    language: str
+
+class PluginSettings(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    enabled: bool
+    settings: Dict[str, Any]
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PluginUpdate(BaseModel):
+    enabled: bool
+    settings: Optional[Dict[str, Any]] = None
+
 class FileInfo(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str
