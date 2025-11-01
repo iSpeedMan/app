@@ -259,6 +259,22 @@ async def startup_event():
         doc['created_at'] = doc['created_at'].isoformat()
         await db.users.insert_one(doc)
         logger.info("Super admin created: admin/admin")
+    
+    # Initialize default plugins
+    file_filter_plugin = await db.plugins.find_one({"name": "file_type_filter"})
+    if not file_filter_plugin:
+        plugin = PluginSettings(
+            name="file_type_filter",
+            enabled=True,
+            settings={
+                "blocked_extensions": ['.php', '.exe', '.bat', '.cmd', '.sh', '.js', '.html', '.htm', '.jsp', '.asp', '.aspx'],
+                "description": "Block dangerous file types from being uploaded"
+            }
+        )
+        doc = plugin.model_dump()
+        doc['created_at'] = doc['created_at'].isoformat()
+        await db.plugins.insert_one(doc)
+        logger.info("File type filter plugin initialized")
 
 # Auth endpoints
 @api_router.post("/auth/register")
