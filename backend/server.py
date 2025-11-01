@@ -655,6 +655,20 @@ async def get_user_stats(current_user: dict = Depends(get_current_user)):
         "folder_count": folder_count
     }
 
+@api_router.post("/user/language")
+async def update_language(language_data: LanguageUpdate, current_user: dict = Depends(get_current_user)):
+    # Validate language
+    if language_data.language not in ['ru', 'en']:
+        raise HTTPException(status_code=400, detail="Invalid language. Must be 'ru' or 'en'")
+    
+    # Update user language
+    await db.users.update_one(
+        {"id": current_user['user_id']},
+        {"$set": {"language": language_data.language}}
+    )
+    
+    return {"message": "Language updated successfully", "language": language_data.language}
+
 # Admin endpoints
 @api_router.get("/admin/users")
 async def get_all_users(current_user: dict = Depends(get_current_user)):
