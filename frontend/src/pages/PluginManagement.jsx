@@ -105,7 +105,7 @@ export default function PluginManagement({ user }) {
             {plugins.map((plugin) => (
               <Card key={plugin.name} className="hover-lift" data-testid={`plugin-${plugin.name}`}>
                 <CardHeader>
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <CardTitle className="text-lg">
@@ -121,11 +121,23 @@ export default function PluginManagement({ user }) {
                           : plugin.settings?.description || 'No description'}
                       </CardDescription>
                     </div>
-                    <Switch
-                      checked={plugin.enabled}
-                      onCheckedChange={() => togglePlugin(plugin.name, plugin.enabled)}
-                      data-testid={`plugin-toggle-${plugin.name}`}
-                    />
+                    <div className="flex flex-col gap-2">
+                      <Switch
+                        checked={plugin.enabled}
+                        onCheckedChange={() => togglePlugin(plugin.name, plugin.enabled)}
+                        data-testid={`plugin-toggle-${plugin.name}`}
+                        className="data-[state=checked]:bg-green-500"
+                      />
+                      <Button
+                        size="sm"
+                        variant={plugin.enabled ? "destructive" : "default"}
+                        onClick={() => togglePlugin(plugin.name, plugin.enabled)}
+                        data-testid={`plugin-button-${plugin.name}`}
+                        className={plugin.enabled ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"}
+                      >
+                        {plugin.enabled ? t('disable') : t('enable')}
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 
