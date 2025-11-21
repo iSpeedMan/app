@@ -46,6 +46,22 @@ export default function Profile({ user, setUser }) {
     }
   };
 
+  const handleLanguageChange = async (newLang) => {
+    try {
+      await axios.post(`${API}/user/language`, { language: newLang }, getAuthHeader());
+      changeLanguage(newLang);
+      
+      // Update user data in localStorage
+      const updatedUser = { ...user, language: newLang };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      
+      toast.success(t('languageUpdated'));
+    } catch (error) {
+      toast.error('Failed to update language');
+    }
+  };
+
   const validatePassword = (password) => {
     const errors = [];
     
