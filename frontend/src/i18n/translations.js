@@ -88,6 +88,8 @@ export const translations = {
     managePlugins: 'Включайте или отключайте плагины системы',
     enabled: 'Включен',
     disabled: 'Отключен',
+    enable: 'Включить',
+    disable: 'Отключить',
     pluginSettings: 'Настройки плагина',
     blockedFileTypes: 'Заблокированные типы файлов',
     fileTypeFilter: 'Фильтр типов файлов',
