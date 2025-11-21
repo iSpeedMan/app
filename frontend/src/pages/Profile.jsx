@@ -194,6 +194,21 @@ export default function Profile({ user, setUser }) {
                     </span>
                   </div>
                 </div>
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground">
+                    <Languages className="w-4 h-4 inline mr-2" />
+                    {t('language')}
+                  </Label>
+                  <Select value={language} onValueChange={handleLanguageChange}>
+                    <SelectTrigger data-testid="language-select">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ru">Русский</SelectItem>
+                      <SelectItem value="en">English</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </CardContent>
           </Card>
