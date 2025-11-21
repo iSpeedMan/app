@@ -470,6 +470,16 @@ export default function Dashboard({ user, setUser }) {
             onChange={(e) => handleFileUpload(Array.from(e.target.files))}
           />
           
+          <input
+            ref={folderInputRef}
+            type="file"
+            webkitdirectory=""
+            directory=""
+            multiple
+            className="hidden"
+            onChange={handleFolderUpload}
+          />
+          
           <Button
             onClick={() => fileInputRef.current?.click()}
             disabled={loading}
@@ -478,6 +488,17 @@ export default function Dashboard({ user, setUser }) {
           >
             <Upload className="w-4 h-4 mr-2" />
             Upload Files
+          </Button>
+          
+          <Button
+            onClick={() => folderInputRef.current?.click()}
+            disabled={loading}
+            data-testid="upload-folder-button"
+            className="bg-indigo-500 hover:bg-indigo-600 text-white"
+            variant="outline"
+          >
+            <Folder className="w-4 h-4 mr-2" />
+            Upload Folder
           </Button>
           
           <Dialog open={showFolderDialog} onOpenChange={setShowFolderDialog}>
