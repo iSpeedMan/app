@@ -54,6 +54,7 @@ class User(BaseModel):
     is_super_admin: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     storage_used: int = 0  # in bytes
+    language: str = "ru"  # ru, en
 
 class UserRegister(BaseModel):
     username: str
@@ -112,6 +113,21 @@ class AdminRoleChange(BaseModel):
     user_id: str
     role: str
     make_admin: bool
+
+class LanguageUpdate(BaseModel):
+    language: str
+
+class PluginSettings(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    enabled: bool
+    settings: Dict[str, Any]
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PluginUpdate(BaseModel):
+    enabled: bool
+    settings: Optional[Dict[str, Any]] = None
 
 class FileInfo(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -184,9 +200,19 @@ async def log_security_event(event_type: str, user_id: str, details: str):
         "timestamp": datetime.now(timezone.utc).isoformat()
     })
 
-def is_blocked_file(filename: str) -> bool:
+async def is_blocked_file(filename: str) -> bool:
+    """Check if file is blocked based on plugin settings"""
+    # Get file type filter plugin
+    plugin = await db.plugins.find_one({"name": "file_type_filter"})
+    
+    # If plugin doesn't exist or is disabled, allow all files
+    if not plugin or not plugin.get('enabled', False):
+        return False
+    
+    # Check against blocked extensions from plugin settings
+    blocked_extensions = plugin.get('settings', {}).get('blocked_extensions', [])
     ext = Path(filename).suffix.lower()
-    return ext in BLOCKED_EXTENSIONS
+    return ext in blocked_extensions
 
 async def calculate_folder_size(folder_id: str, user_id: str) -> int:
     """Recursively calculate folder size including all nested files and folders"""
@@ -233,6 +259,22 @@ async def startup_event():
         doc['created_at'] = doc['created_at'].isoformat()
         await db.users.insert_one(doc)
         logger.info("Super admin created: admin/admin")
+    
+    # Initialize default plugins
+    file_filter_plugin = await db.plugins.find_one({"name": "file_type_filter"})
+    if not file_filter_plugin:
+        plugin = PluginSettings(
+            name="file_type_filter",
+            enabled=True,
+            settings={
+                "blocked_extensions": ['.php', '.exe', '.bat', '.cmd', '.sh', '.js', '.html', '.htm', '.jsp', '.asp', '.aspx'],
+                "description": "Block dangerous file types from being uploaded"
+            }
+        )
+        doc = plugin.model_dump()
+        doc['created_at'] = doc['created_at'].isoformat()
+        await db.plugins.insert_one(doc)
+        logger.info("File type filter plugin initialized")
 
 # Auth endpoints
 @api_router.post("/auth/register")
@@ -327,10 +369,11 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 async def upload_file(
     file: UploadFile = File(...),
     folder_id: Optional[str] = Form(None),
+    folder_path: Optional[str] = Form(None),
     current_user: dict = Depends(get_current_user)
 ):
     # Check file extension
-    if is_blocked_file(file.filename):
+    if await is_blocked_file(file.filename):
         raise HTTPException(status_code=400, detail="File type not allowed for security reasons")
     
     # Check file size
@@ -340,6 +383,40 @@ async def upload_file(
     
     if file_size > MAX_FILE_SIZE:
         raise HTTPException(status_code=400, detail=f"File too large. Maximum size is {MAX_FILE_SIZE / (1024*1024)}MB")
+    
+    # Handle folder path (for folder upload)
+    if folder_path and not folder_id:
+        # Create folder structure if it doesn't exist
+        parts = folder_path.strip('/').split('/')
+        parent_id = None
+        
+        for part in parts:
+            if not part:
+                continue
+            
+            # Check if folder exists
+            existing = await db.folders.find_one({
+                "name": part,
+                "parent_id": parent_id,
+                "owner_id": current_user['user_id']
+            })
+            
+            if existing:
+                parent_id = existing['id']
+            else:
+                # Create folder
+                new_folder_id = str(uuid.uuid4())
+                folder_doc = {
+                    "id": new_folder_id,
+                    "name": part,
+                    "parent_id": parent_id,
+                    "owner_id": current_user['user_id'],
+                    "created_at": datetime.now(timezone.utc).isoformat()
+                }
+                await db.folders.insert_one(folder_doc)
+                parent_id = new_folder_id
+        
+        folder_id = parent_id
     
     # Verify folder belongs to user if specified
     if folder_id:
@@ -578,6 +655,20 @@ async def get_user_stats(current_user: dict = Depends(get_current_user)):
         "folder_count": folder_count
     }
 
+@api_router.post("/user/language")
+async def update_language(language_data: LanguageUpdate, current_user: dict = Depends(get_current_user)):
+    # Validate language
+    if language_data.language not in ['ru', 'en']:
+        raise HTTPException(status_code=400, detail="Invalid language. Must be 'ru' or 'en'")
+    
+    # Update user language
+    await db.users.update_one(
+        {"id": current_user['user_id']},
+        {"$set": {"language": language_data.language}}
+    )
+    
+    return {"message": "Language updated successfully", "language": language_data.language}
+
 # Admin endpoints
 @api_router.get("/admin/users")
 async def get_all_users(current_user: dict = Depends(get_current_user)):
@@ -700,6 +791,46 @@ async def admin_change_password(password_data: AdminPasswordChange, current_user
                            f"Admin changed password for user {target_user['username']}")
     
     return {"message": "Password changed successfully"}
+
+# Plugin management endpoints (Super admin only)
+@api_router.get("/admin/plugins")
+async def get_plugins(current_user: dict = Depends(get_current_user)):
+    # Check if user is super admin
+    if not current_user.get('is_super_admin'):
+        raise HTTPException(status_code=403, detail="Only super admin can access plugins")
+    
+    plugins = await db.plugins.find({}, {"_id": 0}).to_list(None)
+    return plugins
+
+@api_router.put("/admin/plugins/{plugin_name}")
+async def update_plugin(
+    plugin_name: str,
+    plugin_data: PluginUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    # Check if user is super admin
+    if not current_user.get('is_super_admin'):
+        raise HTTPException(status_code=403, detail="Only super admin can modify plugins")
+    
+    # Get plugin
+    plugin = await db.plugins.find_one({"name": plugin_name})
+    if not plugin:
+        raise HTTPException(status_code=404, detail="Plugin not found")
+    
+    # Update plugin
+    update_data = {"enabled": plugin_data.enabled}
+    if plugin_data.settings is not None:
+        update_data["settings"] = plugin_data.settings
+    
+    await db.plugins.update_one(
+        {"name": plugin_name},
+        {"$set": update_data}
+    )
+    
+    await log_security_event("plugin_updated", current_user['user_id'],
+                           f"Updated plugin {plugin_name}: enabled={plugin_data.enabled}")
+    
+    return {"message": "Plugin updated successfully"}
 
 # Include router
 app.include_router(api_router)

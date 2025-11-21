@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Cloud, ArrowLeft, Shield, Users, Trash2, Key, UserCog, HardDrive, File, Folder } from 'lucide-react';
+import { Cloud, ArrowLeft, Shield, Users, Trash2, Key, UserCog, HardDrive, File, Folder, Puzzle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -114,12 +114,22 @@ export default function AdminPanel({ user }) {
             <Button variant="ghost" size="icon" onClick={() => navigate('/')} data-testid="back-button">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-1">
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-500 shadow-md">
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <h1 className="text-2xl font-bold text-foreground">Admin Panel</h1>
             </div>
+            {user?.is_super_admin && (
+              <Button
+                variant="outline"
+                onClick={() => navigate('/admin/plugins')}
+                data-testid="plugins-button"
+              >
+                <Puzzle className="w-4 h-4 mr-2" />
+                Plugins
+              </Button>
+            )}
           </div>
         </div>
       </header>

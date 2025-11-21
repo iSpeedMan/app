@@ -5,15 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Cloud, User, Mail, Shield, Lock, ArrowLeft, HardDrive, File, Folder, Eye, EyeOff } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Cloud, User, Mail, Shield, Lock, ArrowLeft, HardDrive, File, Folder, Eye, EyeOff, Languages } from 'lucide-react';
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export default function Profile({ user, setUser }) {
   const navigate = useNavigate();
+  const { language, changeLanguage, t } = useLanguage();
   const [stats, setStats] = useState({ storage_used: 0, file_count: 0, folder_count: 0 });
   const [passwordData, setPasswordData] = useState({
     current_password: '',
@@ -40,6 +43,22 @@ export default function Profile({ user, setUser }) {
       setStats(response.data);
     } catch (error) {
       console.error('Failed to load stats:', error);
+    }
+  };
+
+  const handleLanguageChange = async (newLang) => {
+    try {
+      await axios.post(`${API}/user/language`, { language: newLang }, getAuthHeader());
+      changeLanguage(newLang);
+      
+      // Update user data in localStorage
+      const updatedUser = { ...user, language: newLang };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      
+      toast.success(t('languageUpdated'));
+    } catch (error) {
+      toast.error('Failed to update language');
     }
   };
 
@@ -174,6 +193,21 @@ export default function Profile({ user, setUser }) {
                       {user?.is_super_admin ? 'Super Admin' : user?.role}
                     </span>
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground">
+                    <Languages className="w-4 h-4 inline mr-2" />
+                    {t('language')}
+                  </Label>
+                  <Select value={language} onValueChange={handleLanguageChange}>
+                    <SelectTrigger data-testid="language-select">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ru">Русский</SelectItem>
+                      <SelectItem value="en">English</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </CardContent>
