@@ -96,27 +96,75 @@ export default function Dashboard({ user, setUser }) {
     }
   };
 
-  const handleFileUpload = async (files) => {
+  const handleFileUpload = async (files, folderPath = null) => {
     if (!files || files.length === 0) return;
     
     setLoading(true);
+    let successCount = 0;
+    let errorCount = 0;
     
     for (const file of files) {
       try {
         const formData = new FormData();
         formData.append('file', file);
-        if (currentFolder) formData.append('folder_id', currentFolder);
+        
+        // Handle folder upload with path
+        if (folderPath) {
+          formData.append('folder_path', folderPath);
+        } else if (currentFolder) {
+          formData.append('folder_id', currentFolder);
+        }
         
         await axios.post(`${API}/files/upload`, formData, getAuthHeader());
-        toast.success(`${file.name} uploaded successfully`);
+        successCount++;
       } catch (error) {
-        toast.error(error.response?.data?.detail || `Failed to upload ${file.name}`);
+        errorCount++;
+        console.error(`Failed to upload ${file.name}:`, error);
       }
+    }
+    
+    if (successCount > 0) {
+      toast.success(`${successCount} file(s) uploaded successfully`);
+    }
+    if (errorCount > 0) {
+      toast.error(`${errorCount} file(s) failed to upload`);
     }
     
     setLoading(false);
     loadFiles();
+    loadFolders();
     loadStats();
+  };
+
+  const handleFolderUpload = async (event) => {
+    const files = Array.from(event.target.files);
+    if (files.length === 0) return;
+    
+    setLoading(true);
+    
+    // Group files by their folder paths
+    const filesByPath = {};
+    
+    for (const file of files) {
+      // Get relative path from webkitRelativePath
+      const relativePath = file.webkitRelativePath;
+      const pathParts = relativePath.split('/');
+      
+      // Remove filename to get folder path
+      const folderPath = pathParts.slice(0, -1).join('/');
+      
+      if (!filesByPath[folderPath]) {
+        filesByPath[folderPath] = [];
+      }
+      filesByPath[folderPath].push(file);
+    }
+    
+    // Upload files with their folder paths
+    for (const [folderPath, pathFiles] of Object.entries(filesByPath)) {
+      await handleFileUpload(pathFiles, folderPath);
+    }
+    
+    setLoading(false);
   };
 
   const handleCreateFolder = async () => {
