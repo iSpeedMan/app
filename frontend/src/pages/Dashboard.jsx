@@ -31,6 +31,7 @@ export default function Dashboard({ user, setUser }) {
   const [moveDestination, setMoveDestination] = useState(null);
   
   const fileInputRef = useRef(null);
+  const folderInputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);
   const [draggedItem, setDraggedItem] = useState(null);
   const [dropTarget, setDropTarget] = useState(null);
