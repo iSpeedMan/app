@@ -737,8 +737,8 @@ export default function Dashboard({ user, setUser }) {
       <Dialog open={showMoveDialog} onOpenChange={setShowMoveDialog}>
         <DialogContent data-testid="move-dialog">
           <DialogHeader>
-            <DialogTitle>Move {moveTarget?.type}</DialogTitle>
-            <DialogDescription>Select destination folder</DialogDescription>
+            <DialogTitle>{t('moveItem')} {moveTarget?.type}</DialogTitle>
+            <DialogDescription>{t('selectDestination')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-2 max-h-[300px] overflow-y-auto">
             <Button
@@ -748,7 +748,7 @@ export default function Dashboard({ user, setUser }) {
               data-testid="move-to-root"
             >
               <Home className="w-4 h-4 mr-2" />
-              Root
+              {t('root')}
             </Button>
             {folders.map((folder) => (
               <Button
