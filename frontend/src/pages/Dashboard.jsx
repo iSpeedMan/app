@@ -434,7 +434,7 @@ export default function Dashboard({ user, setUser }) {
           <Card className="p-6 hover-lift" data-testid="storage-card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Storage Used</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('storageUsed')}</p>
                 <p className="text-2xl font-bold text-sky-600 dark:text-sky-400">{formatSize(stats.storage_used)}</p>
               </div>
               <Cloud className="w-8 h-8 text-sky-500 opacity-50" />
