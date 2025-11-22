@@ -454,7 +454,7 @@ export default function Dashboard({ user, setUser }) {
           <Card className="p-6 hover-lift" data-testid="folders-card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Folders</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('folders')}</p>
                 <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{stats.folder_count}</p>
               </div>
               <Folder className="w-8 h-8 text-indigo-500 opacity-50" />
