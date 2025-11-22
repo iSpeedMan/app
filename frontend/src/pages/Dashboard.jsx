@@ -489,7 +489,7 @@ export default function Dashboard({ user, setUser }) {
             className="bg-sky-500 hover:bg-sky-600 text-white"
           >
             <Upload className="w-4 h-4 mr-2" />
-            Upload Files
+            {t('uploadFiles')}
           </Button>
           
           <Button
@@ -500,7 +500,7 @@ export default function Dashboard({ user, setUser }) {
             variant="outline"
           >
             <Folder className="w-4 h-4 mr-2" />
-            Upload Folder
+            {t('uploadFolder')}
           </Button>
           
           <Dialog open={showFolderDialog} onOpenChange={setShowFolderDialog}>
