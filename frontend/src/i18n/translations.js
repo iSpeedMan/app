@@ -218,6 +218,8 @@ export const translations = {
     managePlugins: 'Enable or disable system plugins',
     enabled: 'Enabled',
     disabled: 'Disabled',
+    enable: 'Enable',
+    disable: 'Disable',
     pluginSettings: 'Plugin Settings',
     blockedFileTypes: 'Blocked File Types',
     fileTypeFilter: 'File Type Filter',
