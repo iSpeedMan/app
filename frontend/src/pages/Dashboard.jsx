@@ -15,6 +15,7 @@ const API = `${BACKEND_URL}/api`;
 
 export default function Dashboard({ user, setUser }) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
