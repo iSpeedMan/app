@@ -583,8 +583,8 @@ export default function Dashboard({ user, setUser }) {
           {folders.length === 0 && files.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
               <Cloud className="w-16 h-16 mb-4 opacity-30" />
-              <p className="text-lg mb-2">No files or folders</p>
-              <p className="text-sm">Drag and drop files here or click Upload</p>
+              <p className="text-lg mb-2">{t('noFilesOrFolders')}</p>
+              <p className="text-sm">{t('dragDropHint')}</p>
             </div>
           ) : (
             <div className="space-y-2">
