@@ -507,7 +507,7 @@ export default function Dashboard({ user, setUser }) {
             <DialogTrigger asChild>
               <Button variant="outline" data-testid="new-folder-button">
                 <FolderPlus className="w-4 h-4 mr-2" />
-                New Folder
+                {t('newFolder')}
               </Button>
             </DialogTrigger>
             <DialogContent data-testid="new-folder-dialog">
