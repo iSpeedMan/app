@@ -512,11 +512,11 @@ export default function Dashboard({ user, setUser }) {
             </DialogTrigger>
             <DialogContent data-testid="new-folder-dialog">
               <DialogHeader>
-                <DialogTitle>Create New Folder</DialogTitle>
-                <DialogDescription>Enter a name for your new folder</DialogDescription>
+                <DialogTitle>{t('createNewFolder')}</DialogTitle>
+                <DialogDescription>{t('enterFolderName')}</DialogDescription>
               </DialogHeader>
               <Input
-                placeholder="Folder name"
+                placeholder={t('folderName')}
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
                 data-testid="folder-name-input"
@@ -527,7 +527,7 @@ export default function Dashboard({ user, setUser }) {
                   data-testid="create-folder-submit"
                   className="bg-sky-500 hover:bg-sky-600 text-white"
                 >
-                  Create
+                  {t('create')}
                 </Button>
               </DialogFooter>
             </DialogContent>
