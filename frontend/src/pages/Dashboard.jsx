@@ -444,7 +444,7 @@ export default function Dashboard({ user, setUser }) {
           <Card className="p-6 hover-lift" data-testid="files-card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Files</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('files')}</p>
                 <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.file_count}</p>
               </div>
               <File className="w-8 h-8 text-blue-500 opacity-50" />
