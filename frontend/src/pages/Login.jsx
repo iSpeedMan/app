@@ -113,8 +113,8 @@ export default function Login({ setUser }) {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-500 mb-4 shadow-lg">
             <Cloud className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent mb-2">Mini Cloud</h1>
-          <p className="text-muted-foreground">Your personal cloud storage</p>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent mb-2">{t('miniCloud')}</h1>
+          <p className="text-muted-foreground">{t('personalCloud')}</p>
         </div>
 
         <Card className="shadow-xl border-slate-200 dark:border-slate-700 animate-slide-in">
