@@ -246,14 +246,14 @@ export default function Dashboard({ user, setUser }) {
         }, getAuthHeader());
       }
       
-      toast.success('Moved successfully');
+      toast.success(t('movedSuccessfully'));
       setShowMoveDialog(false);
       setMoveTarget(null);
       setMoveDestination(null);
       loadFiles();
       loadFolders();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to move');
+      toast.error(error.response?.data?.detail || t('moveFailed'));
     }
   };
 
