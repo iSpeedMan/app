@@ -120,8 +120,8 @@ export default function Login({ setUser }) {
         <Card className="shadow-xl border-slate-200 dark:border-slate-700 animate-slide-in">
           <Tabs value={isLogin ? 'login' : 'register'} onValueChange={(v) => setIsLogin(v === 'login')}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login" data-testid="login-tab">Login</TabsTrigger>
-              <TabsTrigger value="register" data-testid="register-tab">Register</TabsTrigger>
+              <TabsTrigger value="login" data-testid="login-tab">{t('login')}</TabsTrigger>
+              <TabsTrigger value="register" data-testid="register-tab">{t('register')}</TabsTrigger>
             </TabsList>
             
             <TabsContent value="login">
