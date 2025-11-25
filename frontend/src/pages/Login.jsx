@@ -148,14 +148,14 @@ export default function Login({ setUser }) {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
+                    <Label htmlFor="login-password">{t('password')}</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="login-password"
                         data-testid="login-password"
                         type={showLoginPassword ? "text" : "password"}
-                        placeholder="Enter password"
+                        placeholder={t('password')}
                         className="pl-10 pr-10"
                         value={loginData.password}
                         onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
