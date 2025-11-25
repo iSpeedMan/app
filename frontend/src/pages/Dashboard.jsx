@@ -336,18 +336,18 @@ export default function Dashboard({ user, setUser }) {
           file_id: draggedItem.id,
           target_folder_id: targetFolder.id
         }, getAuthHeader());
-        toast.success('File moved successfully');
+        toast.success(t('movedSuccessfully'));
       } else if (draggedItem.type === 'folder') {
         await axios.post(`${API}/folders/move`, {
           folder_id: draggedItem.id,
           target_parent_id: targetFolder.id
         }, getAuthHeader());
-        toast.success('Folder moved successfully');
+        toast.success(t('movedSuccessfully'));
       }
       loadFiles();
       loadFolders();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to move');
+      toast.error(error.response?.data?.detail || t('moveFailed'));
     }
     
     setDraggedItem(null);
