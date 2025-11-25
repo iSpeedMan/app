@@ -35,9 +35,9 @@ export default function Login({ setUser }) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
-      toast.success('Login successful!');
+      toast.success(t('loginSuccess'));
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Login failed');
+      toast.error(error.response?.data?.detail || t('loginFailed'));
     } finally {
       setLoading(false);
     }
