@@ -203,9 +203,9 @@ export default function Dashboard({ user, setUser }) {
       link.click();
       link.remove();
       
-      toast.success('Download started');
+      toast.success(t('downloadStarted'));
     } catch (error) {
-      toast.error('Failed to download file');
+      toast.error(t('fileUploadFailed'));
     }
   };
 
