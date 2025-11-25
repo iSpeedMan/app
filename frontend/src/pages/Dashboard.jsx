@@ -219,14 +219,14 @@ export default function Dashboard({ user, setUser }) {
         await axios.delete(`${API}/folders/delete/${deleteTarget.id}`, getAuthHeader());
       }
       
-      toast.success('Deleted successfully');
+      toast.success(t('deletedSuccessfully'));
       setShowDeleteDialog(false);
       setDeleteTarget(null);
       loadFiles();
       loadFolders();
       loadStats();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to delete');
+      toast.error(error.response?.data?.detail || t('deleteFailed'));
     }
   };
 
