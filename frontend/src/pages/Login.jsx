@@ -132,14 +132,14 @@ export default function Login({ setUser }) {
               <CardContent>
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-username">Username</Label>
+                    <Label htmlFor="login-username">{t('username')}</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="login-username"
                         data-testid="login-username"
                         type="text"
-                        placeholder="Enter username"
+                        placeholder={t('username')}
                         className="pl-10"
                         value={loginData.username}
                         onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
