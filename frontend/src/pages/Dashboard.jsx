@@ -178,13 +178,13 @@ export default function Dashboard({ user, setUser }) {
         parent_id: currentFolder
       }, getAuthHeader());
       
-      toast.success('Folder created successfully');
+      toast.success(t('folderCreated'));
       setNewFolderName('');
       setShowFolderDialog(false);
       loadFolders();
       loadStats();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to create folder');
+      toast.error(error.response?.data?.detail || t('folderCreateFailed'));
     }
   };
 
