@@ -126,10 +126,10 @@ export default function Dashboard({ user, setUser }) {
     }
     
     if (successCount > 0) {
-      toast.success(`${successCount} file(s) uploaded successfully`);
+      toast.success(t('fileUploaded') + ` (${successCount})`);
     }
     if (errorCount > 0) {
-      toast.error(`${errorCount} file(s) failed to upload`);
+      toast.error(t('fileUploadFailed') + ` (${errorCount})`);
     }
     
     setLoading(false);
