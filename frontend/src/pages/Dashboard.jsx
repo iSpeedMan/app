@@ -770,7 +770,7 @@ export default function Dashboard({ user, setUser }) {
               data-testid="move-confirm"
               className="bg-sky-500 hover:bg-sky-600 text-white"
             >
-              Move
+              {t('move')}
             </Button>
           </DialogFooter>
         </DialogContent>
