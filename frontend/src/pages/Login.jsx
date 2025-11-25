@@ -98,9 +98,9 @@ export default function Login({ setUser }) {
       localStorage.setItem('token', loginResponse.data.token);
       localStorage.setItem('user', JSON.stringify(loginResponse.data.user));
       setUser(loginResponse.data.user);
-      toast.success('Registration successful! Welcome to Mini Cloud!');
+      toast.success(t('registerSuccess'));
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Registration failed');
+      toast.error(error.response?.data?.detail || t('registerFailed'));
     } finally {
       setLoading(false);
     }
