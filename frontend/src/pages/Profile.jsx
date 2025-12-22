@@ -189,7 +189,7 @@ export default function Profile({ user, setUser }) {
                   <div className="flex items-center gap-2 p-3 bg-background-secondary rounded-lg">
                     <Shield className="w-4 h-4 text-muted-foreground" />
                     <span className="font-medium capitalize" data-testid="role-display">
-                      {user?.is_super_admin ? 'Super Admin' : user?.role}
+                      {user?.is_super_admin ? t('superAdmin') : user?.role === 'admin' ? t('admin') : t('user')}
                     </span>
                   </div>
                 </div>
