@@ -354,7 +354,7 @@ export default function Profile({ user, setUser }) {
                   )}
                 </div>
                 <Button type="submit" disabled={loading} data-testid="change-password-submit" className="bg-sky-500 hover:bg-sky-600 text-white">
-                  {loading ? 'Changing...' : 'Change Password'}
+                  {loading ? t('changing') : t('changePassword')}
                 </Button>
               </form>
             </CardContent>
