@@ -180,8 +180,8 @@ export default function Login({ setUser }) {
             
             <TabsContent value="register">
               <CardHeader>
-                <CardTitle>Create account</CardTitle>
-                <CardDescription>Get started with your personal cloud storage</CardDescription>
+                <CardTitle>{t('createAccount')}</CardTitle>
+                <CardDescription>{t('getStarted')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleRegister} className="space-y-4">
