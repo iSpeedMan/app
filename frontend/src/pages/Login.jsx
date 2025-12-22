@@ -279,7 +279,7 @@ export default function Login({ setUser }) {
                     )}
                   </div>
                   <Button type="submit" className="w-full bg-sky-500 hover:bg-sky-600 text-white" disabled={loading} data-testid="register-submit">
-                    {loading ? 'Creating account...' : 'Create account'}
+                    {loading ? t('creatingAccount') : t('createAccount')}
                   </Button>
                 </form>
               </CardContent>
