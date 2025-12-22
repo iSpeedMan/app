@@ -259,9 +259,9 @@ export default function Profile({ user, setUser }) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Lock className="w-5 h-5 text-sky-500" />
-                Change Password
+                {t('changePassword')}
               </CardTitle>
-              <CardDescription>Update your account password</CardDescription>
+              <CardDescription>{t('updatePassword')}</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handlePasswordChange} className="space-y-4">
