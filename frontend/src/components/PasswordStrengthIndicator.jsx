@@ -29,11 +29,11 @@ export default function PasswordStrengthIndicator({ password }) {
 
   const getStrength = () => {
     const passed = requirements.filter(req => req.test(password)).length;
-    if (passed === 0) return { label: 'Very Weak', color: 'bg-red-500', width: '0%' };
-    if (passed === 1) return { label: 'Weak', color: 'bg-red-500', width: '25%' };
-    if (passed === 2) return { label: 'Fair', color: 'bg-orange-500', width: '50%' };
-    if (passed === 3) return { label: 'Good', color: 'bg-yellow-500', width: '75%' };
-    return { label: 'Strong', color: 'bg-green-500', width: '100%' };
+    if (passed === 0) return { label: t('veryWeak'), color: 'bg-red-500', width: '0%' };
+    if (passed === 1) return { label: t('weak'), color: 'bg-red-500', width: '25%' };
+    if (passed === 2) return { label: t('fair'), color: 'bg-orange-500', width: '50%' };
+    if (passed === 3) return { label: t('good'), color: 'bg-yellow-500', width: '75%' };
+    return { label: t('strong'), color: 'bg-green-500', width: '100%' };
   };
 
   const strength = getStrength();
