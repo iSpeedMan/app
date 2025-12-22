@@ -164,9 +164,9 @@ export default function Profile({ user, setUser }) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="w-5 h-5 text-sky-500" />
-                User Information
+                {t('userInformation')}
               </CardTitle>
-              <CardDescription>Your account details</CardDescription>
+              <CardDescription>{t('yourAccountDetails')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
