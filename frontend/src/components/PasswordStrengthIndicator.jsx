@@ -45,7 +45,7 @@ export default function PasswordStrengthIndicator({ password }) {
       {password && (
         <div className="space-y-1">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Password Strength:</span>
+            <span className="text-muted-foreground">{t('passwordStrength')}</span>
             <span className={`font-medium ${
               strength.label === 'Strong' ? 'text-green-600 dark:text-green-400' :
               strength.label === 'Good' ? 'text-yellow-600 dark:text-yellow-400' :
