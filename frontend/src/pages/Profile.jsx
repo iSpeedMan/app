@@ -151,7 +151,7 @@ export default function Profile({ user, setUser }) {
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-500 shadow-md">
                 <Cloud className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-foreground">Profile</h1>
+              <h1 className="text-2xl font-bold text-foreground">{t('profile')}</h1>
             </div>
           </div>
         </div>
