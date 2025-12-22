@@ -1,24 +1,27 @@
 import { Check, X } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function PasswordStrengthIndicator({ password }) {
+  const { t } = useLanguage();
+  
   const requirements = [
     {
-      label: 'Minimum 8 characters',
+      label: t('minChars'),
       test: (pwd) => pwd.length >= 8,
       id: 'length'
     },
     {
-      label: 'At least one uppercase letter (A-Z)',
+      label: t('uppercase'),
       test: (pwd) => /[A-Z]/.test(pwd),
       id: 'uppercase'
     },
     {
-      label: 'At least one lowercase letter (a-z)',
+      label: t('lowercase'),
       test: (pwd) => /[a-z]/.test(pwd),
       id: 'lowercase'
     },
     {
-      label: 'At least one special character (!@#$%...)',
+      label: t('specialChar'),
       test: (pwd) => /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(pwd),
       id: 'special'
     }
