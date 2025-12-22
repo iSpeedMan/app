@@ -171,21 +171,21 @@ export default function Profile({ user, setUser }) {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-muted-foreground">Username</Label>
+                  <Label className="text-muted-foreground">{t('username')}</Label>
                   <div className="flex items-center gap-2 p-3 bg-background-secondary rounded-lg">
                     <User className="w-4 h-4 text-muted-foreground" />
                     <span className="font-medium" data-testid="username-display">{user?.username}</span>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-muted-foreground">Email</Label>
+                  <Label className="text-muted-foreground">{t('email')}</Label>
                   <div className="flex items-center gap-2 p-3 bg-background-secondary rounded-lg">
                     <Mail className="w-4 h-4 text-muted-foreground" />
                     <span className="font-medium" data-testid="email-display">{user?.email}</span>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-muted-foreground">Role</Label>
+                  <Label className="text-muted-foreground">{t('role')}</Label>
                   <div className="flex items-center gap-2 p-3 bg-background-secondary rounded-lg">
                     <Shield className="w-4 h-4 text-muted-foreground" />
                     <span className="font-medium capitalize" data-testid="role-display">
