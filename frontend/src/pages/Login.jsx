@@ -288,7 +288,7 @@ export default function Login({ setUser }) {
         </Card>
         
         <div className="mt-4 text-center text-sm text-muted-foreground">
-          <p>Demo: admin / admin</p>
+          <p>{t('demoCredentials')}</p>
         </div>
       </div>
     </div>
