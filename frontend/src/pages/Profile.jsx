@@ -17,6 +17,7 @@ const API = `${BACKEND_URL}/api`;
 export default function Profile({ user, setUser }) {
   const navigate = useNavigate();
   const { language, changeLanguage, t } = useLanguage();
+  const [stats, setStats] = useState({ storage_used: 0, file_count: 0, folder_count: 0 });
   const [passwordData, setPasswordData] = useState({
     current_password: '',
     new_password: '',
