@@ -8,11 +8,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Cloud, Lock, Mail, User, Eye, EyeOff } from 'lucide-react';
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export default function Login({ setUser }) {
+  const { t } = useLanguage();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   
@@ -33,9 +35,9 @@ export default function Login({ setUser }) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
-      toast.success('Login successful!');
+      toast.success(t('loginSuccess'));
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Login failed');
+      toast.error(error.response?.data?.detail || t('loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -96,9 +98,9 @@ export default function Login({ setUser }) {
       localStorage.setItem('token', loginResponse.data.token);
       localStorage.setItem('user', JSON.stringify(loginResponse.data.user));
       setUser(loginResponse.data.user);
-      toast.success('Registration successful! Welcome to Mini Cloud!');
+      toast.success(t('registerSuccess'));
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Registration failed');
+      toast.error(error.response?.data?.detail || t('registerFailed'));
     } finally {
       setLoading(false);
     }
@@ -111,33 +113,33 @@ export default function Login({ setUser }) {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-500 mb-4 shadow-lg">
             <Cloud className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent mb-2">Mini Cloud</h1>
-          <p className="text-muted-foreground">Your personal cloud storage</p>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent mb-2">{t('miniCloud')}</h1>
+          <p className="text-muted-foreground">{t('personalCloud')}</p>
         </div>
 
         <Card className="shadow-xl border-slate-200 dark:border-slate-700 animate-slide-in">
           <Tabs value={isLogin ? 'login' : 'register'} onValueChange={(v) => setIsLogin(v === 'login')}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login" data-testid="login-tab">Login</TabsTrigger>
-              <TabsTrigger value="register" data-testid="register-tab">Register</TabsTrigger>
+              <TabsTrigger value="login" data-testid="login-tab">{t('login')}</TabsTrigger>
+              <TabsTrigger value="register" data-testid="register-tab">{t('register')}</TabsTrigger>
             </TabsList>
             
             <TabsContent value="login">
               <CardHeader>
-                <CardTitle>Welcome back</CardTitle>
-                <CardDescription>Enter your credentials to access your cloud</CardDescription>
+                <CardTitle>{t('welcomeBack')}</CardTitle>
+                <CardDescription>{t('enterCredentials')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-username">Username</Label>
+                    <Label htmlFor="login-username">{t('username')}</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="login-username"
                         data-testid="login-username"
                         type="text"
-                        placeholder="Enter username"
+                        placeholder={t('username')}
                         className="pl-10"
                         value={loginData.username}
                         onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
@@ -146,14 +148,14 @@ export default function Login({ setUser }) {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
+                    <Label htmlFor="login-password">{t('password')}</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="login-password"
                         data-testid="login-password"
                         type={showLoginPassword ? "text" : "password"}
-                        placeholder="Enter password"
+                        placeholder={t('password')}
                         className="pl-10 pr-10"
                         value={loginData.password}
                         onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
@@ -170,7 +172,7 @@ export default function Login({ setUser }) {
                     </div>
                   </div>
                   <Button type="submit" className="w-full bg-sky-500 hover:bg-sky-600 text-white" disabled={loading} data-testid="login-submit">
-                    {loading ? 'Logging in...' : 'Login'}
+                    {loading ? t('loggingIn') : t('login')}
                   </Button>
                 </form>
               </CardContent>
@@ -178,8 +180,8 @@ export default function Login({ setUser }) {
             
             <TabsContent value="register">
               <CardHeader>
-                <CardTitle>Create account</CardTitle>
-                <CardDescription>Get started with your personal cloud storage</CardDescription>
+                <CardTitle>{t('createAccount')}</CardTitle>
+                <CardDescription>{t('getStarted')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleRegister} className="space-y-4">
@@ -277,7 +279,7 @@ export default function Login({ setUser }) {
                     )}
                   </div>
                   <Button type="submit" className="w-full bg-sky-500 hover:bg-sky-600 text-white" disabled={loading} data-testid="register-submit">
-                    {loading ? 'Creating account...' : 'Create account'}
+                    {loading ? t('creatingAccount') : t('createAccount')}
                   </Button>
                 </form>
               </CardContent>
@@ -286,7 +288,7 @@ export default function Login({ setUser }) {
         </Card>
         
         <div className="mt-4 text-center text-sm text-muted-foreground">
-          <p>Demo: admin / admin</p>
+          <p>{t('demoCredentials')}</p>
         </div>
       </div>
     </div>

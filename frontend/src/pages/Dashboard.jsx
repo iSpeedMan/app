@@ -8,12 +8,14 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Cloud, Upload, FolderPlus, Download, Trash2, Move, Home, User, Shield, Moon, Sun, LogOut, Folder, File, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export default function Dashboard({ user, setUser }) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
@@ -124,10 +126,10 @@ export default function Dashboard({ user, setUser }) {
     }
     
     if (successCount > 0) {
-      toast.success(`${successCount} file(s) uploaded successfully`);
+      toast.success(t('fileUploaded') + ` (${successCount})`);
     }
     if (errorCount > 0) {
-      toast.error(`${errorCount} file(s) failed to upload`);
+      toast.error(t('fileUploadFailed') + ` (${errorCount})`);
     }
     
     setLoading(false);
@@ -176,13 +178,13 @@ export default function Dashboard({ user, setUser }) {
         parent_id: currentFolder
       }, getAuthHeader());
       
-      toast.success('Folder created successfully');
+      toast.success(t('folderCreated'));
       setNewFolderName('');
       setShowFolderDialog(false);
       loadFolders();
       loadStats();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to create folder');
+      toast.error(error.response?.data?.detail || t('folderCreateFailed'));
     }
   };
 
@@ -201,9 +203,9 @@ export default function Dashboard({ user, setUser }) {
       link.click();
       link.remove();
       
-      toast.success('Download started');
+      toast.success(t('downloadStarted'));
     } catch (error) {
-      toast.error('Failed to download file');
+      toast.error(t('fileUploadFailed'));
     }
   };
 
@@ -217,14 +219,14 @@ export default function Dashboard({ user, setUser }) {
         await axios.delete(`${API}/folders/delete/${deleteTarget.id}`, getAuthHeader());
       }
       
-      toast.success('Deleted successfully');
+      toast.success(t('deletedSuccessfully'));
       setShowDeleteDialog(false);
       setDeleteTarget(null);
       loadFiles();
       loadFolders();
       loadStats();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to delete');
+      toast.error(error.response?.data?.detail || t('deleteFailed'));
     }
   };
 
@@ -244,14 +246,14 @@ export default function Dashboard({ user, setUser }) {
         }, getAuthHeader());
       }
       
-      toast.success('Moved successfully');
+      toast.success(t('movedSuccessfully'));
       setShowMoveDialog(false);
       setMoveTarget(null);
       setMoveDestination(null);
       loadFiles();
       loadFolders();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to move');
+      toast.error(error.response?.data?.detail || t('moveFailed'));
     }
   };
 
@@ -334,18 +336,18 @@ export default function Dashboard({ user, setUser }) {
           file_id: draggedItem.id,
           target_folder_id: targetFolder.id
         }, getAuthHeader());
-        toast.success('File moved successfully');
+        toast.success(t('movedSuccessfully'));
       } else if (draggedItem.type === 'folder') {
         await axios.post(`${API}/folders/move`, {
           folder_id: draggedItem.id,
           target_parent_id: targetFolder.id
         }, getAuthHeader());
-        toast.success('Folder moved successfully');
+        toast.success(t('movedSuccessfully'));
       }
       loadFiles();
       loadFolders();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to move');
+      toast.error(error.response?.data?.detail || t('moveFailed'));
     }
     
     setDraggedItem(null);
@@ -364,18 +366,18 @@ export default function Dashboard({ user, setUser }) {
           file_id: draggedItem.id,
           target_folder_id: null
         }, getAuthHeader());
-        toast.success('File moved to root');
+        toast.success(t('movedSuccessfully'));
       } else if (draggedItem.type === 'folder') {
         await axios.post(`${API}/folders/move`, {
           folder_id: draggedItem.id,
           target_parent_id: null
         }, getAuthHeader());
-        toast.success('Folder moved to root');
+        toast.success(t('movedSuccessfully'));
       }
       loadFiles();
       loadFolders();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to move');
+      toast.error(error.response?.data?.detail || t('moveFailed'));
     }
     
     setDraggedItem(null);
@@ -391,7 +393,7 @@ export default function Dashboard({ user, setUser }) {
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-500 shadow-md">
                 <Cloud className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-foreground">Mini Cloud</h1>
+              <h1 className="text-2xl font-bold text-foreground">{t('miniCloud')}</h1>
             </div>
             
             <div className="flex items-center gap-2">
@@ -432,7 +434,7 @@ export default function Dashboard({ user, setUser }) {
           <Card className="p-6 hover-lift" data-testid="storage-card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Storage Used</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('storageUsed')}</p>
                 <p className="text-2xl font-bold text-sky-600 dark:text-sky-400">{formatSize(stats.storage_used)}</p>
               </div>
               <Cloud className="w-8 h-8 text-sky-500 opacity-50" />
@@ -442,7 +444,7 @@ export default function Dashboard({ user, setUser }) {
           <Card className="p-6 hover-lift" data-testid="files-card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Files</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('files')}</p>
                 <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.file_count}</p>
               </div>
               <File className="w-8 h-8 text-blue-500 opacity-50" />
@@ -452,7 +454,7 @@ export default function Dashboard({ user, setUser }) {
           <Card className="p-6 hover-lift" data-testid="folders-card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Folders</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('folders')}</p>
                 <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{stats.folder_count}</p>
               </div>
               <Folder className="w-8 h-8 text-indigo-500 opacity-50" />
@@ -487,7 +489,7 @@ export default function Dashboard({ user, setUser }) {
             className="bg-sky-500 hover:bg-sky-600 text-white"
           >
             <Upload className="w-4 h-4 mr-2" />
-            Upload Files
+            {t('uploadFiles')}
           </Button>
           
           <Button
@@ -498,23 +500,23 @@ export default function Dashboard({ user, setUser }) {
             variant="outline"
           >
             <Folder className="w-4 h-4 mr-2" />
-            Upload Folder
+            {t('uploadFolder')}
           </Button>
           
           <Dialog open={showFolderDialog} onOpenChange={setShowFolderDialog}>
             <DialogTrigger asChild>
               <Button variant="outline" data-testid="new-folder-button">
                 <FolderPlus className="w-4 h-4 mr-2" />
-                New Folder
+                {t('newFolder')}
               </Button>
             </DialogTrigger>
             <DialogContent data-testid="new-folder-dialog">
               <DialogHeader>
-                <DialogTitle>Create New Folder</DialogTitle>
-                <DialogDescription>Enter a name for your new folder</DialogDescription>
+                <DialogTitle>{t('createNewFolder')}</DialogTitle>
+                <DialogDescription>{t('enterFolderName')}</DialogDescription>
               </DialogHeader>
               <Input
-                placeholder="Folder name"
+                placeholder={t('folderName')}
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
                 data-testid="folder-name-input"
@@ -525,7 +527,7 @@ export default function Dashboard({ user, setUser }) {
                   data-testid="create-folder-submit"
                   className="bg-sky-500 hover:bg-sky-600 text-white"
                 >
-                  Create
+                  {t('create')}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -581,8 +583,8 @@ export default function Dashboard({ user, setUser }) {
           {folders.length === 0 && files.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
               <Cloud className="w-16 h-16 mb-4 opacity-30" />
-              <p className="text-lg mb-2">No files or folders</p>
-              <p className="text-sm">Drag and drop files here or click Upload</p>
+              <p className="text-lg mb-2">{t('noFilesOrFolders')}</p>
+              <p className="text-sm">{t('dragDropHint')}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -717,15 +719,15 @@ export default function Dashboard({ user, setUser }) {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent data-testid="delete-dialog">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t('areYouSure')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this {deleteTarget?.type}. This action cannot be undone.
+              {t('deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="delete-cancel">Cancel</AlertDialogCancel>
+            <AlertDialogCancel data-testid="delete-cancel">{t('cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-500 hover:bg-red-600" data-testid="delete-confirm">
-              Delete
+              {t('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -735,8 +737,8 @@ export default function Dashboard({ user, setUser }) {
       <Dialog open={showMoveDialog} onOpenChange={setShowMoveDialog}>
         <DialogContent data-testid="move-dialog">
           <DialogHeader>
-            <DialogTitle>Move {moveTarget?.type}</DialogTitle>
-            <DialogDescription>Select destination folder</DialogDescription>
+            <DialogTitle>{t('moveItem')} {moveTarget?.type}</DialogTitle>
+            <DialogDescription>{t('selectDestination')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-2 max-h-[300px] overflow-y-auto">
             <Button
@@ -746,7 +748,7 @@ export default function Dashboard({ user, setUser }) {
               data-testid="move-to-root"
             >
               <Home className="w-4 h-4 mr-2" />
-              Root
+              {t('root')}
             </Button>
             {folders.map((folder) => (
               <Button
@@ -768,7 +770,7 @@ export default function Dashboard({ user, setUser }) {
               data-testid="move-confirm"
               className="bg-sky-500 hover:bg-sky-600 text-white"
             >
-              Move
+              {t('move')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,24 +1,27 @@
 import { Check, X } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function PasswordStrengthIndicator({ password }) {
+  const { t } = useLanguage();
+  
   const requirements = [
     {
-      label: 'Minimum 8 characters',
+      label: t('minChars'),
       test: (pwd) => pwd.length >= 8,
       id: 'length'
     },
     {
-      label: 'At least one uppercase letter (A-Z)',
+      label: t('uppercase'),
       test: (pwd) => /[A-Z]/.test(pwd),
       id: 'uppercase'
     },
     {
-      label: 'At least one lowercase letter (a-z)',
+      label: t('lowercase'),
       test: (pwd) => /[a-z]/.test(pwd),
       id: 'lowercase'
     },
     {
-      label: 'At least one special character (!@#$%...)',
+      label: t('specialChar'),
       test: (pwd) => /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(pwd),
       id: 'special'
     }
@@ -26,11 +29,11 @@ export default function PasswordStrengthIndicator({ password }) {
 
   const getStrength = () => {
     const passed = requirements.filter(req => req.test(password)).length;
-    if (passed === 0) return { label: 'Very Weak', color: 'bg-red-500', width: '0%' };
-    if (passed === 1) return { label: 'Weak', color: 'bg-red-500', width: '25%' };
-    if (passed === 2) return { label: 'Fair', color: 'bg-orange-500', width: '50%' };
-    if (passed === 3) return { label: 'Good', color: 'bg-yellow-500', width: '75%' };
-    return { label: 'Strong', color: 'bg-green-500', width: '100%' };
+    if (passed === 0) return { label: t('veryWeak'), color: 'bg-red-500', width: '0%' };
+    if (passed === 1) return { label: t('weak'), color: 'bg-red-500', width: '25%' };
+    if (passed === 2) return { label: t('fair'), color: 'bg-orange-500', width: '50%' };
+    if (passed === 3) return { label: t('good'), color: 'bg-yellow-500', width: '75%' };
+    return { label: t('strong'), color: 'bg-green-500', width: '100%' };
   };
 
   const strength = getStrength();
@@ -42,7 +45,7 @@ export default function PasswordStrengthIndicator({ password }) {
       {password && (
         <div className="space-y-1">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Password Strength:</span>
+            <span className="text-muted-foreground">{t('passwordStrength')}</span>
             <span className={`font-medium ${
               strength.label === 'Strong' ? 'text-green-600 dark:text-green-400' :
               strength.label === 'Good' ? 'text-yellow-600 dark:text-yellow-400' :

@@ -117,10 +117,10 @@ export default function Profile({ user, setUser }) {
         current_password: passwordData.current_password,
         new_password: passwordData.new_password
       }, getAuthHeader());
-      toast.success('Password changed successfully');
+      toast.success(t('passwordChanged'));
       setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
     } catch (error) {
-      const errorMsg = error.response?.data?.detail || 'Failed to change password';
+      const errorMsg = error.response?.data?.detail || t('passwordChangeFailed');
       if (errorMsg.includes('incorrect')) {
         setPasswordErrors({ current: 'Current password is incorrect' });
       } else {
@@ -152,7 +152,7 @@ export default function Profile({ user, setUser }) {
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-500 shadow-md">
                 <Cloud className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-foreground">Profile</h1>
+              <h1 className="text-2xl font-bold text-foreground">{t('profile')}</h1>
             </div>
           </div>
         </div>
@@ -165,32 +165,32 @@ export default function Profile({ user, setUser }) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="w-5 h-5 text-sky-500" />
-                User Information
+                {t('userInformation')}
               </CardTitle>
-              <CardDescription>Your account details</CardDescription>
+              <CardDescription>{t('yourAccountDetails')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-muted-foreground">Username</Label>
+                  <Label className="text-muted-foreground">{t('username')}</Label>
                   <div className="flex items-center gap-2 p-3 bg-background-secondary rounded-lg">
                     <User className="w-4 h-4 text-muted-foreground" />
                     <span className="font-medium" data-testid="username-display">{user?.username}</span>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-muted-foreground">Email</Label>
+                  <Label className="text-muted-foreground">{t('email')}</Label>
                   <div className="flex items-center gap-2 p-3 bg-background-secondary rounded-lg">
                     <Mail className="w-4 h-4 text-muted-foreground" />
                     <span className="font-medium" data-testid="email-display">{user?.email}</span>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-muted-foreground">Role</Label>
+                  <Label className="text-muted-foreground">{t('role')}</Label>
                   <div className="flex items-center gap-2 p-3 bg-background-secondary rounded-lg">
                     <Shield className="w-4 h-4 text-muted-foreground" />
                     <span className="font-medium capitalize" data-testid="role-display">
-                      {user?.is_super_admin ? 'Super Admin' : user?.role}
+                      {user?.is_super_admin ? t('superAdmin') : user?.role === 'admin' ? t('admin') : t('user')}
                     </span>
                   </div>
                 </div>
@@ -218,9 +218,9 @@ export default function Profile({ user, setUser }) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <HardDrive className="w-5 h-5 text-sky-500" />
-                Storage Statistics
+                {t('storageStatistics')}
               </CardTitle>
-              <CardDescription>Your usage overview</CardDescription>
+              <CardDescription>{t('usageOverview')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -260,9 +260,9 @@ export default function Profile({ user, setUser }) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Lock className="w-5 h-5 text-sky-500" />
-                Change Password
+                {t('changePassword')}
               </CardTitle>
-              <CardDescription>Update your account password</CardDescription>
+              <CardDescription>{t('updatePassword')}</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handlePasswordChange} className="space-y-4">
@@ -355,7 +355,7 @@ export default function Profile({ user, setUser }) {
                   )}
                 </div>
                 <Button type="submit" disabled={loading} data-testid="change-password-submit" className="bg-sky-500 hover:bg-sky-600 text-white">
-                  {loading ? 'Changing...' : 'Change Password'}
+                  {loading ? t('changing') : t('changePassword')}
                 </Button>
               </form>
             </CardContent>
