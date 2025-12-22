@@ -217,9 +217,9 @@ export default function Profile({ user, setUser }) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <HardDrive className="w-5 h-5 text-sky-500" />
-                Storage Statistics
+                {t('storageStatistics')}
               </CardTitle>
-              <CardDescription>Your usage overview</CardDescription>
+              <CardDescription>{t('usageOverview')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
