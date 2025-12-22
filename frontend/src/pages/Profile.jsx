@@ -116,10 +116,10 @@ export default function Profile({ user, setUser }) {
         current_password: passwordData.current_password,
         new_password: passwordData.new_password
       }, getAuthHeader());
-      toast.success('Password changed successfully');
+      toast.success(t('passwordChanged'));
       setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
     } catch (error) {
-      const errorMsg = error.response?.data?.detail || 'Failed to change password';
+      const errorMsg = error.response?.data?.detail || t('passwordChangeFailed');
       if (errorMsg.includes('incorrect')) {
         setPasswordErrors({ current: 'Current password is incorrect' });
       } else {
